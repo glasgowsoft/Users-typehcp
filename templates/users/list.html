@@ -1,0 +1,31 @@
+{% extends "mysite/base.html" %}
+
+{% block content %}
+  {% if activeperson.status >= 40 %}
+      <a class="btn btn-default" href="{% url 'userinsert' function='insert' %}" >Add a new person</span></a>
+
+      <table>
+      <h2>
+      {% for x in persons %}
+          <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
+              <td>{{ x.display_name }}&nbsp;</td>
+              <td>{{ x.email }}</td>
+              <td>{{ x.pk }}</td></tr>
+      {% endfor %}
+      </h2>
+      </table>
+  {% else %}
+      <table>
+      <h2>
+      {% for x in persons %}
+          <tr><td>&nbsp;&nbsp;</td>
+              <td>{{ x.display_name }}&nbsp;</td>
+              <td>{{ x.email }}</td>
+              <td>{{ x.pk }}</td></tr>
+      {% endfor %}
+      </h2>
+      </table>
+  {% endif %}
+{% endblock content %}
+    {% comment %}
+    {% endcomment %}
