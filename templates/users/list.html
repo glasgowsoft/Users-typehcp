@@ -10,6 +10,9 @@
           <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
               <td>{{ x.display_name }}&nbsp;</td>
               <td>{{ x.email }}</td>
+              <td>{{ x.authorname }}</td>
+              <td>{{ x.landline }}</td>
+              <td>{{ x.mobile }}</td>
               <td>{{ x.pk }}</td></tr>
       {% endfor %}
       </h2>

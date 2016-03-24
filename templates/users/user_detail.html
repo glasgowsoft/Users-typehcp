@@ -13,19 +13,29 @@
     <a class="btn btn-default" href="{% url 'userinsert' function='insert' %}" ><span>Add a new user</span></a>
     </h2>
 
-    <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk function='update' %}">
-    <span>Update this user</span></a>
-    {% if can_process_this_user == True %}
+    {% if can_update %}
+      <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk function='update' %}">
+      <span>Update this user</span></a>
+    {% endif %}
+    {% if can_remove %}
       <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk function='deleteperm' %}">
       <span>Remove this user</span></a>
     {% endif %}
-
+    {% if can_promote %}
+      <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk function='promote' %}">
+      <span>Promote to Full Member</span></a>
+    {% endif %}
+    {% if can_demote %}
+      <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk function='demote' %}">
+      <span>Demote to Casual Member</span></a>
+    {% endif %}
   <table>
   <h2>
-    <tr><td>&nbsp;&nbsp;{{ x.username }}&nbsp;</td>
-        <td>{{ x.first_name }}&nbsp;</td>
-         <td>{{ x.email }}</td>
-         <td>{{ x.pk }}</td></tr>
+    <tr><td>&nbsp;&nbsp;{{ person.username }}&nbsp;</td>
+        <td>{{ person.first_name }}&nbsp;</td>
+        <td>{{ person.status }}&nbsp;</td>
+        <td>{{ person.authorname }}&nbsp;</td>
+         <td>{{ person.pk }}</td></tr>
   </h2>
   </table>
 
