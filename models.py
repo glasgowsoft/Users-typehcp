@@ -9,7 +9,7 @@ class Person(models.Model):
   password                = models.CharField(max_length=30)
   status                  = models.IntegerField()
   authorname              = models.CharField(max_length=20)
-  last_login              = models.DateTimeField(default=timezone.now)
+  last_login              = models.DateTimeField(blank = True, null = True)
   def __str__(self):
     return str(self.username)
 
