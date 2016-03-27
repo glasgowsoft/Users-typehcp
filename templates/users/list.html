@@ -3,24 +3,69 @@
 {% block content %}
   {% if activeperson.status >= 40 %}
       <a class="btn btn-default" href="{% url 'userinsert' function='insert' %}" >Add a new person</span></a>
+      <a class="btn btn-default" href="{% url 'events.views.event_list' %}">View Events</a>
 
       <table>
-      <h2>
-      {% for x in persons %}
+      <h2>Committee members
+      {% for x in committee %}
           <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
               <td>{{ x.display_name }}&nbsp;</td>
-              <td>{{ x.email }}</td>
-              <td>{{ x.authorname }}</td>
-              <td>{{ x.landline }}</td>
-              <td>{{ x.mobile }}</td>
-              <td>{{ x.pk }}</td></tr>
+              <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
+          </tr>
+      {% endfor %}
+      </h2>
+      </table>
+      <table>
+      <h2>Other full members
+      {% for x in full %}
+          <tr>
+          <td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
+          <td>{{ x.display_name }}&nbsp;</td>
+          <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
+          {% if activeperson.status >= 60 %}
+            <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='demote' %}"><span>Demote</span></a></td>
+          {% endif %}
+          </tr>
+      {% endfor %}
+      </h2>
+      </table>
+      <table>
+      <h2>Prospective members
+      {% for x in casual %}
+          <tr>
+          <td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
+          <td>{{ x.display_name }}&nbsp;</td>
+          <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
+          <td>{{ x.authorname }}&nbsp;</td>
+          {% if activeperson.status >= 60 %}
+            <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='promote' %}"><span>Promote</span></a></td>
+          {% endif %}
+          </tr>
       {% endfor %}
       </h2>
       </table>
   {% else %}
+      <a class="btn btn-default" href="{% url 'events.views.event_list' %}">View Events</a>
+      <table>
+      <h2>Full members
+      {% for x in full %}
+          <tr><td>{{ x.display_name }}&nbsp;</td></tr>
+      {% endfor %}
+      </h2>
+      </table>
+      <table>
+      <h2>Prospective members
+      {% for x in casual %}
+          <tr><td>{{ x.display_name }}&nbsp;</td></tr>
+      {% endfor %}
+      </h2>
+      </table>
+  {% endif %}
+{% endblock content %}
+    {% comment %}
       <table>
       <h2>
-      {% for x in persons %}
+      {% for x in committee %}
           <tr><td>&nbsp;&nbsp;</td>
               <td>{{ x.display_name }}&nbsp;</td>
               <td>{{ x.email }}</td>
@@ -28,7 +73,4 @@
       {% endfor %}
       </h2>
       </table>
-  {% endif %}
-{% endblock content %}
-    {% comment %}
     {% endcomment %}

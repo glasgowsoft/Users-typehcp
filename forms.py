@@ -14,11 +14,15 @@ class InsertPersonForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = ('username', 'display_name', 'password')
+class PasswordForm(forms.Form):
+    password = forms.CharField(label='New password', max_length=20)
+class DisplaynameForm(forms.Form):
+    display_name = forms.CharField(max_length=20)
+'''
 class PasswordForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = ('password',)
-class DisplaynameForm(forms.Form):
-    display_name = forms.CharField(max_length=20)
+'''
 
 

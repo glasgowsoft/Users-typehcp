@@ -13,12 +13,21 @@ from .forms                   import UpdatePersonForm, InsertPersonForm, Passwor
     #status == 50      treasurer
     #status == 60      organizer
 
+@login_required
 def user_list(request):
-    persons                                 =  Person.objects.all().order_by('display_name')
-
+    #persons                                 =  Person.objects.all().order_by('display_name')
     activeuser                              =  User.objects.get(id=request.user.id)
     activeperson                            =  Person.objects.get(username=activeuser.username)
-    return render(request, 'users/list.html', {'persons': persons, 'activeperson': activeperson})
+    committee                               =  Person.objects.filter(status__gte = 40).order_by('display_name')
+    if activeperson.status                  >= 40:
+        committee                           =  Person.objects.filter(status__gte = 40).order_by('display_name')
+        full                                =  Person.objects.filter(status__gte = 20, status__lt = 40).order_by('display_name')
+        casual                              =  Person.objects.filter(status__lt = 20).order_by('display_name')
+    else:
+        committee                           =  ''
+        full                                =  Person.objects.filter(status__gte = 20, status__lte = 60).order_by('display_name') 
+        casual                              =  Person.objects.filter(status__lt = 20).order_by('display_name')
+    return render(request, 'users/list.html', {'committee': committee, 'full': full, 'casual': casual, 'activeperson': activeperson})
 
 @login_required
 def user_process(request, pk='0', function="update"):
@@ -66,19 +75,20 @@ def user_process(request, pk='0', function="update"):
 
     # arrives at 'insert', 'password', 'displayname' from 'events/list.html'
     elif function                             == 'insert':
-      form = InsertPersonForm()                                                                 # get a blank InsertPersonForm
-      return render(request, 'users/insert_update.html', {'form': form})      # ask activeuser for details of new/updated user
+      form = InsertPersonForm()                                               # get a blank InsertPersonForm
+      return render(request, 'users/insert_update.html', {'form': form})    
+                                                                              # ask activeuser for details of new/updated user
     elif function                             == 'password':
       #form = PasswordChangeForm('user')     
       #form = SetPasswordForm('user')  
       #form = PasswordForm('user')             
       form = PasswordForm()                     
       # get a UpdatePersonForm filled with details of Profile to be upd
-      return render(request, 'users/insert_update.html', {'form': form})  
+      return render(request, 'users/password.html', {'form': form})  
     elif function                             == 'displayname':
       form = DisplaynameForm(initial = {'display_name': person.display_name})         
       # get a UpdatePersonForm filled with details of Profile to be upd
-      return render(request, 'users/insert_update.html', {'form': form})                # ask activeuser for details of new/updated user
+      return render(request, 'users/displayname.html', {'form': form})                # ask activeuser for details of new/updated user
       
        
     # arrives at 'deleteperm', 'promote', 'demote', 'update' from 'users/user_detail.html'
@@ -94,7 +104,7 @@ def user_process(request, pk='0', function="update"):
       return redirect('users.views.user_list')   
     elif function                             == 'demote':
       person.status                           =  10
-      person.authorname                       =  'Casual'
+      person.authorname                       =  ''
       person.save()                                                                   # update user record with extra details
       #form.save_m2m()
       return redirect('users.views.user_list')    
