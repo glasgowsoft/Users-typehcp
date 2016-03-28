@@ -8,9 +8,14 @@
       <table>
       <h2>Committee members
       {% for x in committee %}
-          <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
-              <td>{{ x.display_name }}&nbsp;</td>
-              <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
+          <tr>
+          {% if activeperson.status >= 60 %}
+              <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
+          {% else %}
+              <tr><td>&nbsp;&nbsp;{{ x.username }}&nbsp;</td>
+          {% endif %}
+          <td>{{ x.display_name }}&nbsp;</td>
+          <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
           </tr>
       {% endfor %}
       </h2>
@@ -19,10 +24,14 @@
       <h2>Other full members
       {% for x in full %}
           <tr>
-          <td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
+          {% if activeperson.status >= 60 %}
+              <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
+          {% else %}
+              <tr><td>&nbsp;&nbsp;{{ x.username }}&nbsp;</td>
+          {% endif %}
           <td>{{ x.display_name }}&nbsp;</td>
           <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
-          {% if activeperson.status >= 60 %}
+          {% if activeperson.status >= 50 %}
             <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='demote' %}"><span>Demote</span></a></td>
           {% endif %}
           </tr>
@@ -33,11 +42,15 @@
       <h2>Prospective members
       {% for x in casual %}
           <tr>
-          <td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
+          {% if activeperson.status >= 60 %}
+              <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
+          {% else %}
+              <tr><td>&nbsp;&nbsp;{{ x.username }}&nbsp;</td>
+          {% endif %}
           <td>{{ x.display_name }}&nbsp;</td>
           <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
           <td>{{ x.authorname }}&nbsp;</td>
-          {% if activeperson.status >= 60 %}
+          {% if activeperson.status >= 50 %}
             <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='promote' %}"><span>Promote</span></a></td>
           {% endif %}
           </tr>
