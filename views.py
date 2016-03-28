@@ -3,7 +3,7 @@ from django.utils                   import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models     import User
 from .models                        import Person
-from .forms                   import UpdatePersonForm, InsertPersonForm, PasswordForm, DisplaynameForm, PasswordChangeForm, SetPasswordForm
+from .forms                         import UpdatePersonForm, InsertPersonForm, PasswordForm, DisplaynameForm
 
     #status == 0       not logged on
     #status == 10      casual member, or full member that the program has not yet verified

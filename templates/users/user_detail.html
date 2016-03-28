@@ -11,6 +11,7 @@
     <h2>
     <a class="btn btn-default" href="{% url 'userlist' %}" ><span>View users</span></a>
     <a class="btn btn-default" href="{% url 'userinsert' function='insert' %}" ><span>Add a new user</span></a>
+    <a class="btn btn-default" href="{% url 'events.views.event_list' %}">View Events</a>
     </h2>
 
     {% if can_update %}
@@ -20,14 +21,6 @@
     {% if can_remove %}
       <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk function='deleteperm' %}">
       <span>Remove this user</span></a>
-    {% endif %}
-    {% if can_promote %}
-      <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk function='promote' %}">
-      <span>Promote to Full Member</span></a>
-    {% endif %}
-    {% if can_demote %}
-      <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk function='demote' %}">
-      <span>Demote to Casual Member</span></a>
     {% endif %}
   <table>
   <h2>
