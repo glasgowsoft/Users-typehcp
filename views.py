@@ -6,9 +6,10 @@ from .models                        import Person
 from .forms                         import UpdatePersonForm, InsertPersonForm, PasswordForm, DisplaynameForm
 
     #status == 0       not logged on
-    #status == 10      casual member, or full member that the program has not yet verified
+    #status == 10      prospective/casual member, or full member that the program has not yet verified
     #status == 20      full member
     #status == 30      event organizer - not on committee
+    #status == 35      can add prospectives - not on committee
     #status == 40      committee         not treasurer or organizer
     #status == 50      treasurer
     #status == 60      organizer
@@ -132,7 +133,7 @@ def user_process(request, pk='0', function="update"):
       can_process_this_user                   = False
       if function                             == 'insert':
         person                                = form.save(commit=False)                 # extract details from user form
-        if activeperson.status                >= 40:
+        if activeperson.status                >= 35:
           person.status                       =  10
           user = User.objects.create_user(person.username, 'a@a.com', person.password)  # create user record from form
           can_process_this_user               = True   

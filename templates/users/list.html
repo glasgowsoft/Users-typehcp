@@ -1,8 +1,9 @@
 {% extends "mysite/base.html" %}
 
 {% block content %}
-  {% if activeperson.status >= 40 %}
-      <a class="btn btn-default" href="{% url 'userinsert' function='insert' %}" >Add a prospective member</span></a>
+      {% if activeperson.status >= 35 %}
+          <a class="btn btn-default" href="{% url 'userinsert' function='insert' %}" >Add a prospective member</span></a>
+      {% endif %}
       <a class="btn btn-default" href="{% url 'events.views.event_list' %}">View Events</a>
 
       <table>
@@ -11,12 +12,15 @@
           <tr>
           {% if activeperson.status >= 60 %}
               <td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
-          {% else %}
+          {% elif activeperson.status >= 40 %}
               <td>&nbsp;&nbsp;{{ x.username }}&nbsp;</td>
           {% endif %}
           <td>{{ x.display_name }}&nbsp;</td>
-          <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
+          {% if activeperson.status >= 40 %}
+              <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
+          {% endif %}
           {% if activeperson.status >= 60 %}
+              <td>{{ x.status }}&nbsp;</td>
               <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='deleteperm' %}">
               <span>Remove</span></a></td>
           {% endif %}
@@ -30,15 +34,18 @@
           <tr>
           {% if activeperson.status >= 60 %}
               <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
-          {% else %}
+          {% elif activeperson.status >= 40 %}
               <tr><td>&nbsp;&nbsp;{{ x.username }}&nbsp;</td>
           {% endif %}
           <td>{{ x.display_name }}&nbsp;</td>
-          <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
+          {% if activeperson.status >= 40 %}
+              <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
+          {% endif %}
           {% if activeperson.status >= 50 %}
             <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='demote' %}"><span>Demote</span></a></td>
           {% endif %}
           {% if activeperson.status >= 60 %}
+              <td>{{ x.status }}&nbsp;</td>
               <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='deleteperm' %}">
               <span>Remove</span></a></td>
           {% endif %}
@@ -52,41 +59,27 @@
           <tr>
           {% if activeperson.status >= 60 %}
               <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'userupdate' pk=x.pk function='detail' %}">{{ x.username }}&nbsp;</a></td>
-          {% else %}
+          {% elif activeperson.status >= 40 %}
               <tr><td>&nbsp;&nbsp;{{ x.username }}&nbsp;</td>
           {% endif %}
           <td>{{ x.display_name }}&nbsp;</td>
-          <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
-          <td>{{ x.authorname }}&nbsp;</td>
+          {% if activeperson.status >= 40 %}
+              <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
+              <td>{{ x.authorname }}&nbsp;</td>
+          {% endif %}
           {% if activeperson.status >= 50 %}
-            <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='promote' %}">
-            <span>Promote</span></a></td>
+              <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='promote' %}">
+              <span>Promote</span></a></td>
           {% endif %}
           {% if activeperson.username = x.authorname or activeperson.status >= 60 %}
-            <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='deleteperm' %}">
-            <span>Remove</span></a></td>
+              <td>{{ x.status }}&nbsp;</td>
+              <td><a class="btn btn-default" href="{% url 'userupdate' pk=x.pk function='deleteperm' %}">
+              <span>Remove</span></a></td>
           {% endif %}
           </tr>
       {% endfor %}
       </h2>
       </table>
-  {% else %}
-      <a class="btn btn-default" href="{% url 'events.views.event_list' %}">View Events</a>
-      <table>
-      <h2>Full members
-      {% for x in full %}
-          <tr><td>{{ x.display_name }}&nbsp;</td></tr>
-      {% endfor %}
-      </h2>
-      </table>
-      <table>
-      <h2>Prospective members
-      {% for x in casual %}
-          <tr><td>{{ x.display_name }}&nbsp;</td></tr>
-      {% endfor %}
-      </h2>
-      </table>
-  {% endif %}
 {% endblock content %}
     {% comment %}
       <table>
