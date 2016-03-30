@@ -6,29 +6,32 @@ from .models                        import Person
 from .forms                         import UpdatePersonForm, InsertPersonForm, PasswordForm, DisplaynameForm
 
     #status == 0       not logged on
-    #status == 10      prospective/casual member, or full member that the program has not yet verified
-    #status == 20      full member
-    #status == 30      event organizer - not on committee
-    #status == 35      can add prospectives - not on committee
-    #status == 40      committee         not treasurer or organizer
-    #status == 50      treasurer
-    #status == 60      organizer
+    #status == 20      can view event list and book into/out of events
+    #status == 30      also can put events on the programme
+    #status == 35      also can add prospectives
+    #status == 40      committee, also can view more user details
+    #status == 50      treasurer, also can change whether fullmember
+    #status == 60      organizer, also can remove members and make any update
 
 @login_required
 def user_list(request):
-    #persons                                 =  Person.objects.all().order_by('display_name')
     activeuser                              =  User.objects.get(id=request.user.id)
     activeperson                            =  Person.objects.get(username=activeuser.username)
     committee                               =  Person.objects.filter(status__gte = 40).order_by('display_name')
     if activeperson.status                  >= 40:
         committee                           =  Person.objects.filter(status__gte = 40).order_by('display_name')
-        full                                =  Person.objects.filter(status__gte = 20, status__lt = 40).order_by('display_name')
-        casual                              =  Person.objects.filter(status__lt = 20).order_by('display_name')
+        full                                =  Person.objects.filter(fullmember = True, status__lt = 40).order_by('display_name')
+        members                             =  Person.objects.filter(fullmember = False).order_by('display_name')
+        return render(request, 'users/list.html', \
+        {'committee': committee, 'full': full, 'members': members, 'activeperson': activeperson})
+    elif activeperson.fullmember:
+        full                                =  Person.objects.filter(fullmember = True, status__lte = 60).order_by('display_name') 
+        members                             =  Person.objects.filter(fullmember = False).order_by('display_name')
+        return render(request, 'users/list.html', {'full': full, 'members': members, 'activeperson': activeperson})
     else:
-        committee                           =  ''
-        full                                =  Person.objects.filter(status__gte = 20, status__lte = 60).order_by('display_name') 
-        casual                              =  Person.objects.filter(status__lt = 20).order_by('display_name')
-    return render(request, 'users/list.html', {'committee': committee, 'full': full, 'casual': casual, 'activeperson': activeperson})
+        members                             =  Person.objects.all().order_by('display_name')
+        return render(request, 'users/list.html', {'members': members, 'activeperson': activeperson})
+  
 
 @login_required
 def user_process(request, pk='0', function="update"):
@@ -52,12 +55,12 @@ def user_process(request, pk='0', function="update"):
     else:
       can_remove                          = False   
     if activeperson.status                >= 50                              \
-    and person.status                     == 10:
+    and person.fullmember                 == False:
       can_promote                         = True 
     else:
       can_promote                         = False   
     if activeperson.status                >= 50                              \
-    and person.status                     >  10                              \
+    and person.fullmember                 == True                            \
     and person.status                     <  40:
       can_demote                          = True 
     else:
@@ -79,10 +82,7 @@ def user_process(request, pk='0', function="update"):
       form = InsertPersonForm()                                               # get a blank InsertPersonForm
       return render(request, 'users/insert_update.html', {'form': form})    
                                                                               # ask activeuser for details of new/updated user
-    elif function                             == 'password':
-      #form = PasswordChangeForm('user')     
-      #form = SetPasswordForm('user')  
-      #form = PasswordForm('user')             
+    elif function                             == 'password':            
       form = PasswordForm()                     
       # get a UpdatePersonForm filled with details of Profile to be upd
       return render(request, 'users/password.html', {'form': form})  
@@ -98,13 +98,13 @@ def user_process(request, pk='0', function="update"):
       person.delete()
       return redirect('users.views.user_list')                                # give to activeuser list of users
     elif function                             == 'promote':
-      person.status                           =  20
+      person.fullmember                       =  True
       person.authorname                       =  'Full'
       person.save()                                                                   # update user record with extra details
       #form.save_m2m()
       return redirect('users.views.user_list')   
     elif function                             == 'demote':
-      person.status                           =  10
+      person.fullmember                       =  False
       person.authorname                       =  ''
       person.save()                                                                   # update user record with extra details
       #form.save_m2m()
@@ -116,74 +116,47 @@ def user_process(request, pk='0', function="update"):
   else:                  # i.e method == 'POST'
     if function          == 'insert':
       form               = InsertPersonForm(request.POST)                     # get a InsertPersonForm filled with details of new user 
-      stored_status      = 0
-    elif function        == 'displayname':
-      form               = DisplaynameForm(request.POST)
-    elif function        == 'password':
-      #form               = PasswordChangeForm(request.POST)
-      #form               = SetPasswordForm(request.POST)
-      form               = PasswordForm(request.POST)
-    else:                # i.e. function == 'update'.
-      form               = UpdatePersonForm(request.POST, instance=person)    # get a UpdatePersonForm filled with details of updated user
-      stored_status      = person.status    
-                                            
-    if form.is_valid():
-
-
-      can_process_this_user                   = False
-      if function                             == 'insert':
-        person                                = form.save(commit=False)                 # extract details from user form
-        if activeperson.status                >= 35:
-          person.status                       =  10
-          user = User.objects.create_user(person.username, 'a@a.com', person.password)  # create user record from form
-          can_process_this_user               = True   
-      elif function                           == 'update':
-        person                                = form.save(commit=False)                 # extract details from user form
-        if activeperson.status                >= 60                              \
-        or person.authorname                  == activeperson.username:
-          user.username                       = person.username
-          #user.email                          = person.email
-          can_process_this_user               = True   
-      elif function                           == 'displayname':
-          display_name                        = form.cleaned_data['display_name']
-          person.display_name                 = display_name 
-          person.save() 
-          user.first_name                     = display_name
-          user.save()                                                            
-          return redirect('users.views.user_list')        
-      elif function                           == 'password':
-          password                            = form.cleaned_data['password']
-          user.set_password(password)
-          user.save()                                                              
-          return redirect('events.views.event_list')     
-      if can_process_this_user                == True:
+      if form.is_valid():
+        person                                = form.save(commit=False)                 # extract details from user for
+        person.fullmember                     = False
+        person.status                         =  20
+        person.authorname                     = activeperson.username
+        user = User.objects.create_user(person.username, 'a@a.com', person.password)  # create user record from form
         user.first_name                       = person.display_name
         user.save()
-        if                                                                       \
-        activeperson.status                   <  60                              \
-        and person.status                     >= 40                              \
-        or                                                                       \
-        activeperson.status                   <  50                              \
-        and person.status                     == 10                              \
-        and stored_status                     > 10                               \
-        or                                                                       \
-        activeperson.status                   <  50                              \
-        and person.status                     < 10                               \
-        and stored_status                     == 10:
-          person.status                       = stored_status 
-        if person.status                      <= 10:
-          person.authorname                   = activeperson.username
-        else:
-          person.authorname                   = ''
-        person.password                       = 'password'   
+        person.save()                                                                   # update user record with extra details
+        form.save_m2m()
+        return redirect('users.views.user_list')  
+      else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
+        return render(request, 'users/insert_update.html', {'form': form})
+    elif function        == 'displayname':
+      form               = DisplaynameForm(request.POST)
+      if form.is_valid():
+        person.display_name                 = form.cleaned_data['display_name']
+        person.save() 
+        user.first_name                     = form.cleaned_data['display_name']
+        user.save()                                                            
+        return redirect('users.views.user_list')  
+      else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
+        return render(request, 'users/insert_update.html', {'form': form})
+    elif function        == 'password':
+      form               = PasswordForm(request.POST)
+      if form.is_valid():
+        password                            = form.cleaned_data['password']
+        user.set_password(password)
+        user.save()                                                              
+        return redirect('events.views.event_list')    
+      else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
+        return render(request, 'users/insert_update.html', {'form': form})
+    else:                # i.e. function == 'update'.
+      form               = UpdatePersonForm(request.POST, instance=person)    # get a UpdatePersonForm filled with details of updated user
+      if form.is_valid():
+        person                                = form.save(commit=False)                 # extract details from user form
+        user.first_name                       = person.display_name
+        user.save()
         person.save()                                                                   # update user record with extra details
         form.save_m2m()
         return redirect('users.views.user_list')
-      else:                                 # i.e. activeuser is not authorized to insert/update user
-        return render(request, 'users/insert_update.html', {'form': form})         
-        
-    else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
-      return render(request, 'users/insert_update.html', {'form': form})
-
-
+      else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
+        return render(request, 'users/insert_update.html', {'form': form})
 
