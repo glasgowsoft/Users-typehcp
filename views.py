@@ -37,11 +37,20 @@ def user_list(request):
 # functions which do not update the database
 # but do require a pk as they refer to an existing record
 def user_detail(request, pk):
-  #activeuser                            =  User.objects.get(id=request.user.id)
-  #activeperson                          =  Person.objects.get(username=activeuser.username)
+  activeuser                            =  User.objects.get(id=request.user.id)
+  activeperson                          =  Person.objects.get(username=activeuser.username)
   person                                =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
   #user                                  =  User.objects.get(username=person.username)
-  return render(request, 'users/user_detail.html', {'person', person})
+  if activeperson.status                >= 60:
+    can_update                          =  True
+  else:
+    can_update                          =  False
+  if activeperson.status                >= 60 \
+  or person.authorname                  == activeperson.username:
+    can_remove                          =  True
+  else:
+    can_remove                          =  False
+  return render(request, 'users/user_detail.html', {'person': person,'can_update':can_update,'can_remove':can_remove})
 
 # functions which update the database using parameters in the url, without using forms
 # but do not require a pk as they refer to activeuser

@@ -10,16 +10,16 @@
   <div class="person">
     <h2>
     <a class="btn btn-default" href="{% url 'userlist' %}" ><span>View users</span></a>
-    <a class="btn btn-default" href="{% url 'userinsert' function='insert' %}" ><span>Add a new user</span></a>
+    <a class="btn btn-default" href="{% url 'userinsert' %}" ><span>Add a new user</span></a>
     <a class="btn btn-default" href="{% url 'events.views.event_list' %}">View Events</a>
     </h2>
 
     {% if can_update %}
-      <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk function='update' %}">
+      <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk %}">
       <span>Update this user</span></a>
     {% endif %}
     {% if can_remove %}
-      <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk function='deleteperm' %}">
+      <a class="btn btn-default" href="{% url 'userdeleteperm' pk=person.pk %}">
       <span>Remove this user</span></a>
     {% endif %}
   <table>
@@ -31,7 +31,7 @@
   </h2>
   </table>
 
-    
+
   </div>
 
 
