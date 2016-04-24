@@ -22,8 +22,6 @@
               {% endif %}
               {% if activeperson.status >= 60 %}
                   <td>{{ x.status }}&nbsp;</td>
-                  <td><a class="btn btn-default" href="{% url 'userdeleteperm' pk=x.pk %}">
-                  <span>Remove</span></a></td>
               {% endif %}
               </tr>
           {% endfor %}
@@ -50,12 +48,10 @@
               <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
           {% endif %}
           {% if activeperson.status >= 50 %}
-            <td><a class="btn btn-default" href="{% url 'demote' pk=x.pk %}"><span>Demote</span></a></td>
+            <td><a class="btn btn-default" href="{% url 'demote' pk=x.pk %}"><span>Change to Prospective</span></a></td>
           {% endif %}
           {% if activeperson.status >= 60 %}
               <td>{{ x.status }}&nbsp;</td>
-              <td><a class="btn btn-default" href="{% url 'userdeleteperm' pk=x.pk %}">
-              <span>Remove</span></a></td>
           {% endif %}
           </tr>
       {% endfor %}
@@ -85,13 +81,13 @@
           {% endif %}
           {% if activeperson.status >= 50 %}
               <td><a class="btn btn-default" href="{% url 'promote' pk=x.pk %}">
-              <span>Promote</span></a></td>
+              <span>Change to Full Member</span></a></td>
           {% endif %}
           {% if activeperson.status >= 60 %}
               <td>{{ x.status }}&nbsp;</td>
           {% endif %}
-          {% if activeperson.username = x.authorname or activeperson.status >= 60 %}
-             <td><a class="btn btn-default" href="{% url 'userdeleteperm' pk=x.pk %}">
+          {% if activeperson.username = x.authorname %}
+             <td><a class="btn btn-default" href="{% url 'userdelete' pk=x.pk confirmed='no' %}">
              <span>Remove</span></a></td>
           {% endif %}
           </tr>

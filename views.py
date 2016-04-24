@@ -55,26 +55,35 @@ def user_detail(request, pk):
 # functions which update the database using parameters in the url, without using forms
 # but do not require a pk as they refer to activeuser
 @login_required
-def unsubscribe(request):
-  activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
-  activeperson               =  Person.objects.get(username=activeuser.username)
-  activeuser.delete()
-  activeperson.delete()
-  return redirect('django.contrib.auth.views.logout')
+def unsubscribe(request, confirmed):
+  if confirmed                 == 'no':
+    return render(request, 'users/unsubscribe.html', {})
+  else:
+    activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
+    activeperson               =  Person.objects.get(username=activeuser.username)
+    activeuser.delete()
+    activeperson.delete()
+    unsubscribed               =  True
+    #return redirect('django.contrib.auth.views.logout')
+    return render(request, 'users/unsubscribe_confirmed.html', {'unsubscribed': unsubscribed})
+    #return redirect('django.contrib.auth.views.logout')
 
 # functions which update the database using parameters in the url, without using form
 # and do require a pk as they refer to a user who is not, generally, the activeuser
 @login_required
-def user_deleteperm(request, pk):
-  activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
-  activeperson               =  Person.objects.get(username=activeuser.username)
-  person                     =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
-  user                       =  User.objects.get(username=person.username)
-  if activeperson.status     >= 60                              \
-  or person.authorname       == activeperson.username:
-    user.delete()
-    person.delete()
-    return redirect('users.views.user_list')
+def user_delete(request, pk, confirmed):
+  if confirmed                 == 'no':
+    return render(request, 'users/delete.html', {'pk': pk})
+  else:
+    activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
+    activeperson               =  Person.objects.get(username=activeuser.username)
+    person                     =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
+    user                       =  User.objects.get(username=person.username)
+    if activeperson.status     >= 60                              \
+    or person.authorname       == activeperson.username:
+      user.delete()
+      person.delete()
+      return redirect('users.views.user_list')
 
 @login_required
 def promote(request, pk):
