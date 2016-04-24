@@ -1,0 +1,12 @@
+{% extends "mysite/base.html" %}
+
+{% block content %}
+    {% if error_message %}
+      <h2 class="error">{{error_message}}</h2>
+    {% endif %}
+    <h1>You have unsubscribed from the Harrow Coffee Pot website</h1>
+    <h1> Your record has been deleted.</h1>
+    <h1>If you wish to rejoin, send an email to harrowcoffeepot@gmail.com</h1>
+    {# return(redirect 'django.contrib.auth.views.logout') #}
+
+{% endblock %}
