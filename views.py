@@ -3,7 +3,7 @@ from django.shortcuts               import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models     import User
 from .models                        import Person
-from .forms                         import UpdatePersonForm, InsertPersonForm, PasswordForm, DisplaynameForm
+from .forms                         import UpdatePersonForm, UserOptionsForm, InsertPersonForm, PasswordForm, DisplaynameForm
 
     #status == 0       not logged on
     #status == 20      can view event list and book into/out of events
@@ -137,6 +137,9 @@ def user_insert(request):
       person                                = form.save(commit=False)                 # extract details from user for
       person.fullmember                     = False
       person.status                         =  20
+      person.detailcolor                    = '#0000C0'
+      person.attendeescolor                 = '#00C000'
+      person.backgroundcolor                = '#F3FFF3'
       person.authorname                     = activeperson.username
       user = User.objects.create_user(person.username, 'a@a.com', person.password)  # create user record from form
       user.first_name                       = person.display_name
@@ -182,6 +185,37 @@ def display_name(request):
       activeuser.first_name                     = form.cleaned_data['display_name']
       activeuser.save()
       return redirect('users.views.user_list')
+    else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
+      return render(request, 'users/insert_update.html', {'form': form})
+
+
+@login_required
+def user_options(request, type, color):
+  activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
+  activeperson               =  Person.objects.get(username=activeuser.username)
+  if request.method          != "POST": # i.e. method == "GET":
+    if type                  == 'get':
+      form = UserOptionsForm(instance = activeperson)
+      return render(request, 'users/useroptions.html', {'form': form})                # ask activeuser for details of new/updated user
+    else:
+      if type                == 'detail':
+        activeperson.detailcolor       = color
+      elif type              == 'attendees':
+        activeperson.attendeescolor    = color
+      elif type              == 'background':
+        activeperson.backgroundcolor   = color
+      else:
+        return render(request, 'users/useroptions.html', {'form': form})
+      activeperson.save()
+      return redirect('events.views.event_list')
+  else:
+    form                     = UserOptionsForm(request.POST)
+    if form.is_valid():
+      activeperson.display_name                 = form.cleaned_data['display_name']
+      activeperson.save()
+      activeuser.first_name                     = form.cleaned_data['display_name']
+      activeuser.save()
+      return redirect('events.views.event_list')
     else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
       return render(request, 'users/insert_update.html', {'form': form})
 

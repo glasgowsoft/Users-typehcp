@@ -10,6 +10,12 @@ class UpdatePersonForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = ('username', 'display_name', 'password', 'status', 'authorname')
+class UserOptionsForm(forms.ModelForm):
+     class Meta:
+        model = Person
+        fields = ('display_name',)
+
+
 class InsertPersonForm(forms.ModelForm):
     class Meta:
         model = Person
@@ -18,6 +24,10 @@ class PasswordForm(forms.Form):
     password = forms.CharField(label='New password', max_length=20)
 class DisplaynameForm(forms.Form):
     display_name = forms.CharField(max_length=20)
+'''
+class UserOptionsForm(forms.ModelForm):
+    display_name = forms.CharField(max_length=20)
+'''
 
 
 
