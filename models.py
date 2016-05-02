@@ -10,6 +10,9 @@ class Person(models.Model):
   fullmember              = models.BooleanField()
   status                  = models.IntegerField()
   authorname              = models.CharField(max_length=20,blank = True, null = True)
+  detailcolor             = models.CharField(max_length=7)
+  attendeescolor          = models.CharField(max_length=7)
+  backgroundcolor         = models.CharField(max_length=7)
   last_login              = models.DateTimeField(blank = True, null = True)
   def __str__(self):
     return str(self.username)
