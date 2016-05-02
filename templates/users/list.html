@@ -47,7 +47,7 @@
           {% if activeperson.status >= 40 %}
               <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
           {% endif %}
-          {% if activeperson.status >= 50 %}
+          {% if activeperson.status >= 60 %}
             <td><a class="btn btn-default" href="{% url 'demote' pk=x.pk %}"><span>Change to Prospective</span></a></td>
           {% endif %}
           {% if activeperson.status >= 60 %}
@@ -66,6 +66,7 @@
       </h2>
       <table>
       {% for x in members %}
+        {% if x.status >= 20 or activeperson.status >= 60 %}
           <tr>
           {% if activeperson.status >= 60 %}
               <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'userdetail' pk=x.pk %}">{{ x.username }}&nbsp;</a></td>
@@ -79,7 +80,7 @@
           {% if activeperson.status >= 40 %}
               <td>{{ x.authorname }}&nbsp;</td>
           {% endif %}
-          {% if activeperson.status >= 50 %}
+          {% if activeperson.status >= 60 %}
               <td><a class="btn btn-default" href="{% url 'promote' pk=x.pk %}">
               <span>Change to Full Member</span></a></td>
           {% endif %}
@@ -91,6 +92,7 @@
              <span>Remove</span></a></td>
           {% endif %}
           </tr>
+        {% endif %}
       {% endfor %}
       </h2>
       </table>

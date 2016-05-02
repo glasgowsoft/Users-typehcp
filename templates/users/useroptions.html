@@ -1,0 +1,56 @@
+{% extends "mysite/base.html" %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+      {% if not unsubscribed %}
+        <p class="top-menu"><small>(<a href="{% url 'django.contrib.auth.views.logout' %}">Log out</a>)</small></p>
+      {% endif %}
+    {% endif %}
+    <h1>Change Options</h1>
+    {% comment %}
+    {% if error_message %}
+      <h2 class="error">{{error_message}}</h2>
+    {% endif %}
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-default">Put this display name on the website</button>
+    </form>
+    {% endcomment %}
+    <h2>Change Detail Colour
+    <a class="btn btn-default" href="{% url 'useroptions' type='detail' color='red' %}">
+    <span>Red</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='detail' color='green' %}">
+    <span>Green</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='detail' color='blue' %}">
+    <span>Blue</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='detail' color='#DF00DF' %}">
+    <span>Purple</span></a>
+    </h2>
+    <h2>Change Attendees Colour
+    <a class="btn btn-default" href="{% url 'useroptions' type='attendees' color='red' %}">
+    <span>Red</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='attendees' color='green' %}">
+    <span>Green</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='attendees' color='blue' %}">
+    <span>Blue</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='attendees' color='#DF00DF' %}">
+    <span>Purple</span></a>
+    </h2>
+    <h2>Change Background Colour
+    <a class="btn btn-default" href="{% url 'useroptions' type='background' color='white' %}">
+    <span>White</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='background' color='pink' %}">
+    <span>Pink</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='background' color='#FFF3F3' %}">
+    <span>Faint Pink</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='background' color='lightgreen' %}">
+    <span>Light Green</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='background' color='#F3FFF3' %}">
+    <span>Faint Green</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='background' color='lightblue' %}">
+    <span>Light Blue</span></a>
+    <a class="btn btn-default" href="{% url 'useroptions' type='background' color='F3F3FF' %}">
+    <span>Faint Blue</span></a>
+    </h2>
+    <a class="btn btn-default" href="{% url 'events.views.event_list' %}">Cancel the change and return to viewing events</a>
+{% endblock %}
