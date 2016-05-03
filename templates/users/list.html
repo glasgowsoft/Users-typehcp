@@ -60,7 +60,7 @@
       <h2>
       {% if activeperson.fullmember %}
          Prospective members
-      {% else %}
+      {% elif activeperson.status >= 20 %}
           Members
       {% endif %}
       </h2>
