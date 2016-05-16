@@ -1,0 +1,37 @@
+{% extends "mysite/base.html" %}
+{% block content %}
+{% if error_message %}
+  <h1> {{error_message}}</h1>
+{% endif %}
+
+  <div class="person">
+    <h2>
+    <a class="btn btn-default" href="{% url 'memberlist' %}" ><span>View Members</span></a>
+    <a class="btn btn-default" href="{% url 'homepage' %}">View Events</a>
+    </h2>
+
+    {% if can_update %}
+      <a class="btn btn-default" href="{% url 'memberupdate' pk=person.pk %}">
+      <span>Update this member</span></a>
+      {% if person.fullmember %}
+        <td><a class="btn btn-default" href="{% url 'demote' pk=person.pk %}">
+        <span>Change to Prospective Member</span></a></td>
+      {% else %}
+        <td><a class="btn btn-default" href="{% url 'promote' pk=person.pk %}">
+        <span>Change to Full Member</span></a></td>
+      {% endif %}
+    {% endif %}
+    {% if can_remove %}
+      <a class="btn btn-default" href="{% url 'memberdelete' pk=person.pk confirmed='no' %}">
+      <span>Remove this member</span></a>
+    {% endif %}
+  <table>
+  <h2>
+    <tr><td>&nbsp;&nbsp;{{ person.username }}&nbsp;</td>
+        <td>{{ person.first_name }}&nbsp;</td>
+        <td>{{ person.status }}&nbsp;</td>
+        <td>{{ person.authorname }}&nbsp;</td>
+  </h2>
+  </table>
+  </div>
+{% endblock %}
