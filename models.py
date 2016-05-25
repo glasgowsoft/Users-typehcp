@@ -37,15 +37,3 @@ class Person(models.Model):
     #return self.display_name
   def __str__(self):
     return str(self.username)
-
-
-
-
-
-<<<<<<< HEAD
-=======
-
-
-
-
->>>>>>> ef65b362f63604a6466aec9e6b8915e7dc318826
