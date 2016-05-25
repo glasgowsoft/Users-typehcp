@@ -3,40 +3,38 @@ from django.shortcuts               import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models     import User
 from .models                        import Person
-from .forms                         import UpdatePersonForm, UserOptionsForm, InsertPersonForm, PasswordForm, DisplaynameForm
+from .forms                         import UpdateMemberForm, UpdateContactForm, UserOptionsForm, InsertMemberForm, InsertContactForm, \
+                                    PasswordForm, DisplaynameForm, CurrentColoursForm
+from mysite.settings                import IS_CLUB
 
-    #status == 0       not logged on
-    #status == 20      can view event list and book into/out of events
-    #status == 30      also can put events on the programme
-    #status == 35      also can add prospectives
-    #status == 40      committee, also can view more user details
-    #status == 50      treasurer, also can change whether fullmember
-    #status == 60      organizer, also can remove members and make any update
+    #status == 05      is a contact, not a member, does not have a login and can only be added to an event by a member
+    #status == 10      can view event dates and titles. This is only used for user 'default', which is someone viewing the site without logging in
+    #status == 15      also can view event details. This can be used for 'default' user on some sites. May also be used for some logged in users.
+    #status == 20      also can book into and out of events
+    #status == 30      also can put events on the programme and update/delete their own events
+    #status == 35      also can add members
+    #status == 40      also can view more user details and update/delete any event
+    #status == 50      also can change whether fullmember
+    #status == 60      also can remove members and make any update
 
 # functions which do not update the database
 # and don't require a pk as they don't refer to an specific record
 @login_required
-def user_list(request):
+def member_list(request):
     activeuser                              =  User.objects.get(id=request.user.id)
     activeperson                            =  Person.objects.get(username=activeuser.username)
-    committee                               =  Person.objects.filter(status__gte = 40).order_by('display_name')
-    if activeperson.status                  >= 40:
-        committee                           =  Person.objects.filter(status__gte = 40).order_by('display_name')
-        full                                =  Person.objects.filter(fullmember = True, status__lt = 40).order_by('display_name')
-        members                             =  Person.objects.filter(fullmember = False).order_by('display_name')
-        return render(request, 'users/list.html', \
-        {'committee': committee, 'full': full, 'members': members, 'activeperson': activeperson})
-    elif activeperson.fullmember:
-        full                                =  Person.objects.filter(fullmember = True, status__lte = 60).order_by('display_name')
-        members                             =  Person.objects.filter(fullmember = False).order_by('display_name')
-        return render(request, 'users/list.html', {'full': full, 'members': members, 'activeperson': activeperson})
-    else:
-        members                             =  Person.objects.all().order_by('display_name')
-        return render(request, 'users/list.html', {'members': members, 'activeperson': activeperson})
+    persons                             =  Person.objects.all().order_by('display_name')
+    return render(request, 'users/member_list.html', {'persons': persons, 'activeperson': activeperson})
+
+@login_required
+def contact_list(request):
+    persons                             =  Person.objects.all().order_by('display_name')
+    return render(request, 'users/contact_list.html', {'persons': persons})
+
 
 # functions which do not update the database
 # but do require a pk as they refer to an existing record
-def user_detail(request, pk):
+def member_detail(request, pk):
   activeuser                            =  User.objects.get(id=request.user.id)
   activeperson                          =  Person.objects.get(username=activeuser.username)
   person                                =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
@@ -50,7 +48,12 @@ def user_detail(request, pk):
     can_remove                          =  True
   else:
     can_remove                          =  False
-  return render(request, 'users/user_detail.html', {'person': person,'can_update':can_update,'can_remove':can_remove})
+  return render(request, 'users/member_detail.html', {'person': person,'can_update':can_update,'can_remove':can_remove})
+
+def contact_detail(request, pk):
+  person                                =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
+  #user                                  =  User.objects.get(username=person.username)
+  return render(request, 'users/contact_detail.html', {'person': person})
 
 # functions which update the database using parameters in the url, without using forms
 # but do not require a pk as they refer to activeuser
@@ -71,9 +74,9 @@ def unsubscribe(request, confirmed):
 # functions which update the database using parameters in the url, without using form
 # and do require a pk as they refer to a user who is not, generally, the activeuser
 @login_required
-def user_delete(request, pk, confirmed):
+def member_delete(request, pk, confirmed):
   if confirmed                 == 'no':
-    return render(request, 'users/delete.html', {'pk': pk})
+    return render(request, 'users/member_delete.html', {'pk': pk})
   else:
     activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
     activeperson               =  Person.objects.get(username=activeuser.username)
@@ -83,7 +86,17 @@ def user_delete(request, pk, confirmed):
     or person.authorname       == activeperson.username:
       user.delete()
       person.delete()
-      return redirect('users.views.user_list')
+      return redirect('users.views.member_list')
+
+@login_required
+def contact_delete(request, pk, confirmed):
+  if confirmed                 == 'no':
+    return render(request, 'users/contact_delete.html', {'pk': pk})
+  else:
+    person                     =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
+    person.delete()
+    return redirect('users.views.contact_list')
+
 
 @login_required
 def promote(request, pk):
@@ -96,7 +109,7 @@ def promote(request, pk):
     person.authorname                   =  ''
     person.save()                                                                   # update user record with extra details
     #form.save_m2m()
-    return redirect('users.views.user_list')
+    return redirect('users.views.member_list')
 
 @login_required
 def demote(request, pk):
@@ -109,7 +122,7 @@ def demote(request, pk):
     person.authorname                   =  ''
     person.save()                                                                   # update user record with extra details
     #form.save_m2m()
-    return redirect('users.views.user_list')
+    return redirect('users.views.member_list')
 
 
 
@@ -117,7 +130,7 @@ def demote(request, pk):
 # functions which update the database in two stages,  using forms
 # but don't require a pk as they don't refer to an existing record
 @login_required
-def user_insert(request):
+def member_insert(request):
   activeuser                            =  User.objects.get(id=request.user.id)    # get details of activeuser
   activeperson                          =  Person.objects.get(username=activeuser.username)
   if activeperson.status                >= 35:
@@ -126,12 +139,12 @@ def user_insert(request):
     can_insert                          = False
   if request.method                     != "POST": # i.e. method == "GET":
     if can_insert:
-      form = InsertPersonForm()                                               # get a blank InsertPersonForm
-      return render(request, 'users/insert_update.html', {'form': form})
+      form = InsertMemberForm()                                               # get a blank InsertPersonForm
+      return render(request, 'users/member_new.html', {'form': form})
     else:
       return redirect('events.views.event_list')
   else:                                 # i.e method == 'POST'
-    form                                = InsertPersonForm(request.POST)                     # get a InsertPersonForm filled with details of new user
+    form                                = InsertMemberForm(request.POST)                     # get a InsertPersonForm filled with details of new user
     if form.is_valid()\
     and can_insert:
       person                                = form.save(commit=False)                 # extract details from user for
@@ -146,9 +159,33 @@ def user_insert(request):
       user.save()
       person.save()                                                                   # update user record with extra details
       form.save_m2m()
-      return redirect('users.views.user_list')
+      return redirect('users.views.member_list')
     else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
       return render(request, 'users/insert_update.html', {'form': form})
+
+@login_required
+def contact_insert(request):
+
+  if request.method                     != "POST": # i.e. method == "GET":
+    form = InsertContactForm()                                               # get a blank InsertPersonForm
+    return render(request, 'users/contact_new.html', {'form': form})
+  else:                                 # i.e method == 'POST'
+    form                                = InsertContactForm(request.POST)                     # get a InsertPersonForm filled with details of new user
+    if form.is_valid():
+      person                                = form.save(commit=False)                 # extract details from user for
+      person.fullmember                     = False
+      person.status                         =  5
+      person.detailcolor                    = '#0000C0'
+      person.attendeescolor                 = '#00C000'
+      person.backgroundcolor                = '#F3FFF3'
+      person.save()                                                                   # update user record with extra details
+      form.save_m2m()
+      return redirect('users.views.contact_list')
+    else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
+      return render(request, 'users/contact_new.html', {'form': form})
+
+
+
 
 # functions which update the database in two stages,  using forms
 # but do not require a pk as they refer to activeuser
@@ -184,30 +221,58 @@ def display_name(request):
       activeperson.save()
       activeuser.first_name                     = form.cleaned_data['display_name']
       activeuser.save()
-      return redirect('users.views.user_list')
+      return redirect('users.views.member_list')
     else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
       return render(request, 'users/insert_update.html', {'form': form})
 
 
 @login_required
-def user_options(request, type, color):
+def user_options(request, whence, type='get', color='black' ):
   activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
   activeperson               =  Person.objects.get(username=activeuser.username)
   if request.method          != "POST": # i.e. method == "GET":
     if type                  == 'get':
       form = UserOptionsForm(instance = activeperson)
-      return render(request, 'users/useroptions.html', {'form': form})                # ask activeuser for details of new/updated user
+      return render(request, 'users/useroptions.html', {'form': form, 'activeperson': activeperson, 'whence': whence})                # ask activeuser for details of new/updated user
     else:
-      if type                == 'detail':
-        activeperson.detailcolor       = color
-      elif type              == 'attendees':
-        activeperson.attendeescolor    = color
-      elif type              == 'background':
-        activeperson.backgroundcolor   = color
+      if activeperson.reversevideo           == False:
+        if type                              == 'date':
+          activeperson.datecolor             = color
+        elif type                            == 'detail':
+          activeperson.detailcolor           = color
+        elif type                            == 'attendees':
+          activeperson.attendeescolor        = color
+        elif type                            == 'background':
+          activeperson.backgroundcolor       = color
+        elif type                            == 'reverse':
+          activeperson.reversevideo          = True
+        else:
+          return redirect('useroptions', 'get', 'get', whence)
+      elif activeperson.reversevideo         == True:
+        if type                              == 'date':
+          activeperson.datecolor_rev         = color
+        elif type                            == 'detail':
+          activeperson.detailcolor_rev       = color
+        elif type                            == 'attendees':
+          activeperson.attendeescolor_rev    = color
+        elif type                            == 'background':
+          activeperson.backgroundcolor_rev   = color
+        elif type                            == 'forward':
+          activeperson.reversevideo          = False
+        else:
+          return redirect('useroptions', 'get', 'get', whence)
       else:
-        return render(request, 'users/useroptions.html', {'form': form})
+        return redirect('useroptions', 'get', 'get', whence)
+
       activeperson.save()
-      return redirect('events.views.event_list')
+      if type                          in ['reverse', 'forward']:
+        return redirect('useroptions', 'get', 'get', whence)
+      else:
+        if whence == 'events':
+          return redirect('events.views.event_list')
+        elif whence == 'users':
+          return redirect('users.views.member_list')
+
   else:
     form                     = UserOptionsForm(request.POST)
     if form.is_valid():
@@ -217,22 +282,22 @@ def user_options(request, type, color):
       activeuser.save()
       return redirect('events.views.event_list')
     else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
-      return render(request, 'users/insert_update.html', {'form': form})
+      return render(request, 'users/useroptions.html', {'form': form, 'whence': whence})
 
 # functions which update the database in two stages,  using forms
 # and do require a pk as they refer to a user who is not, generally, the activeuser
 @login_required
-def user_update(request, pk):
+def member_amend(request, pk):
   activeuser                            =  User.objects.get(id=request.user.id)    # get details of activeuser
   activeperson                          =  Person.objects.get(username=activeuser.username)
   person                                =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
   user                                  =  User.objects.get(username=person.username)
 
   if request.method                     != "POST": # i.e. method == "GET":
-    form = UpdatePersonForm(instance=person)                                # get a UpdatePersonForm filled with details of Profile to be upd
-    return render(request, 'users/insert_update.html', {'form': form})                # ask activeuser for details of new/updated user
+    form = UpdateMemberForm(instance=person)                                # get a UpdatePersonForm filled with details of Profile to be upd
+    return render(request, 'users/member_amended.html', {'form': form})                # ask activeuser for details of new/updated user
   else:                                 # i.e method == 'POST'
-    form                                = UpdatePersonForm(request.POST, instance=person)
+    form                                = UpdateMemberForm(request.POST, instance=person)
     if form.is_valid()\
     and activeperson.status             >= 60:
       person                            = form.save(commit=False)                 # extract details from user form
@@ -240,6 +305,29 @@ def user_update(request, pk):
       user.save()
       person.save()                                                                   # update user record with extra details
       form.save_m2m()
-      return redirect('users.views.user_list')
+      return redirect('users.views.member_list')
     else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
-      return render(request, 'users/insert_update.html', {'form': form})
+      return render(request, 'users/member_amended.html', {'form': form})
+
+@login_required
+def contact_amend(request, pk):
+  #activeuser                            =  User.objects.get(id=request.user.id)    # get details of activeuser
+  #activeperson                          =  Person.objects.get(username=activeuser.username)
+  person                                =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
+  #user                                  =  User.objects.get(username=person.username)
+
+  if request.method                     != "POST": # i.e. method == "GET":
+    form = UpdateContactForm(instance=person)                                # get a UpdatePersonForm filled with details of Profile to be upd
+    return render(request, 'users/member_amended.html', {'form': form})                # ask activeuser for details of new/updated user
+  else:                                 # i.e method == 'POST'
+    form                                = UpdateContactForm(request.POST, instance=person)
+    if form.is_valid():
+      person                            = form.save(commit=False)                 # extract details from user form
+      person.save()                                                                   # update user record with extra details
+      form.save_m2m()
+      return redirect('users.views.contact_list')
+    else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
+      return render(request, 'users/contact_amended.html', {'form': form})
+
+
+

@@ -1,24 +1,21 @@
 {% extends "mysite/base.html" %}
-
-
 {% block content %}
-
 {% if error_message %}
   <h1> {{error_message}}</h1>
 {% endif %}
 
   <div class="person">
     <h2>
-    <a class="btn btn-default" href="{% url 'userlist' %}" ><span>View users</span></a>
+    <a class="btn btn-default" href="{% url 'contactlist' %}" ><span>View users</span></a>
     <a class="btn btn-default" href="{% url 'homepage' %}">View Events</a>
     </h2>
 
     {% if can_update %}
-      <a class="btn btn-default" href="{% url 'userupdate' pk=person.pk %}">
+      <a class="btn btn-default" href="{% url 'contactupdate' pk=person.pk %}">
       <span>Update this member</span></a>
     {% endif %}
     {% if can_remove %}
-      <a class="btn btn-default" href="{% url 'userdelete' pk=person.pk confirmed='no' %}">
+      <a class="btn btn-default" href="{% url 'contactdelete' pk=person.pk confirmed='no' %}">
       <span>Remove this member</span></a>
     {% endif %}
   <table>
@@ -29,10 +26,5 @@
         <td>{{ person.authorname }}&nbsp;</td>
   </h2>
   </table>
-
-
   </div>
-
-
 {% endblock %}
-
