@@ -3,7 +3,8 @@ from django.shortcuts               import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models     import User
 from .models                        import Person
-from .forms                         import UpdateMemberForm, UpdateContactForm, UserOptionsForm, InsertMemberForm, InsertContactForm, PasswordForm, DisplaynameForm
+from .forms                         import UpdateMemberForm, UpdateContactForm, UserOptionsForm, InsertMemberForm, InsertContactForm, \
+                                    PasswordForm, DisplaynameForm, CurrentColoursForm
 from mysite.settings                import IS_CLUB
 
     #status == 05      is a contact, not a member, does not have a login and can only be added to an event by a member
@@ -75,7 +76,7 @@ def unsubscribe(request, confirmed):
 @login_required
 def member_delete(request, pk, confirmed):
   if confirmed                 == 'no':
-    return render(request, 'users/delete.html', {'pk': pk})
+    return render(request, 'users/member_delete.html', {'pk': pk})
   else:
     activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
     activeperson               =  Person.objects.get(username=activeuser.username)
@@ -90,7 +91,7 @@ def member_delete(request, pk, confirmed):
 @login_required
 def contact_delete(request, pk, confirmed):
   if confirmed                 == 'no':
-    return render(request, 'users/delete.html', {'pk': pk})
+    return render(request, 'users/contact_delete.html', {'pk': pk})
   else:
     person                     =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
     person.delete()
@@ -226,24 +227,52 @@ def display_name(request):
 
 
 @login_required
-def user_options(request, type, color):
+def user_options(request, whence, type='get', color='black' ):
   activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
   activeperson               =  Person.objects.get(username=activeuser.username)
   if request.method          != "POST": # i.e. method == "GET":
     if type                  == 'get':
       form = UserOptionsForm(instance = activeperson)
-      return render(request, 'users/useroptions.html', {'form': form})                # ask activeuser for details of new/updated user
+      return render(request, 'users/useroptions.html', {'form': form, 'activeperson': activeperson, 'whence': whence})                # ask activeuser for details of new/updated user
     else:
-      if type                == 'detail':
-        activeperson.detailcolor       = color
-      elif type              == 'attendees':
-        activeperson.attendeescolor    = color
-      elif type              == 'background':
-        activeperson.backgroundcolor   = color
+      if activeperson.reversevideo           == False:
+        if type                              == 'date':
+          activeperson.datecolor             = color
+        elif type                            == 'detail':
+          activeperson.detailcolor           = color
+        elif type                            == 'attendees':
+          activeperson.attendeescolor        = color
+        elif type                            == 'background':
+          activeperson.backgroundcolor       = color
+        elif type                            == 'reverse':
+          activeperson.reversevideo          = True
+        else:
+          return redirect('useroptions', 'get', 'get', whence)
+      elif activeperson.reversevideo         == True:
+        if type                              == 'date':
+          activeperson.datecolor_rev         = color
+        elif type                            == 'detail':
+          activeperson.detailcolor_rev       = color
+        elif type                            == 'attendees':
+          activeperson.attendeescolor_rev    = color
+        elif type                            == 'background':
+          activeperson.backgroundcolor_rev   = color
+        elif type                            == 'forward':
+          activeperson.reversevideo          = False
+        else:
+          return redirect('useroptions', 'get', 'get', whence)
       else:
-        return render(request, 'users/useroptions.html', {'form': form})
+        return redirect('useroptions', 'get', 'get', whence)
+
       activeperson.save()
-      return redirect('events.views.event_list')
+      if type                          in ['reverse', 'forward']:
+        return redirect('useroptions', 'get', 'get', whence)
+      else:
+        if whence == 'events':
+          return redirect('events.views.event_list')
+        elif whence == 'users':
+          return redirect('users.views.member_list')
+
   else:
     form                     = UserOptionsForm(request.POST)
     if form.is_valid():
@@ -253,7 +282,7 @@ def user_options(request, type, color):
       activeuser.save()
       return redirect('events.views.event_list')
     else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
-      return render(request, 'users/useroptions.html', {'form': form})
+      return render(request, 'users/useroptions.html', {'form': form, 'whence': whence})
 
 # functions which update the database in two stages,  using forms
 # and do require a pk as they refer to a user who is not, generally, the activeuser

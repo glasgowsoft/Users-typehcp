@@ -38,5 +38,8 @@ class UserOptionsForm(forms.ModelForm):
         #fields = ('display_name',)
         fields = ('username',)
 
-
-
+class CurrentColoursForm(forms.Form):
+  datecolor               = forms.CharField(max_length=20)
+  detailcolor             = forms.CharField(max_length=20)
+  attendeescolor          = forms.CharField(max_length=20)
+  backgroundcolor         = forms.CharField(max_length=20)

@@ -4,9 +4,11 @@
       {% if activeperson.status >= 35 %}
           <a class="btn btn-default" href="{% url 'memberinsert' %}" >Add a member</span></a>
       {% endif %}
-      <a class="btn btn-default" href="{% url 'events.views.event_list' %}">View Events</a>
-
-      <h2>Members</h2>
+      <a class="btn btn-default" href="{% url 'events.views.event_list' %}">
+      View Events</a>
+      <a class="btn btn-default" href="{% url 'useroptions' type='get' color='get' whence='users' %}">
+      <span>Options</span></a>
+      <h2 class ='item'>Members</h2>
 
       <table>
       {% for x in persons %}
