@@ -3,8 +3,8 @@ from django.shortcuts               import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models     import User
 from .models                        import Person
-from .forms                         import UpdateMemberForm, UpdateContactForm, UserOptionsForm, InsertMemberForm, InsertContactForm, \
-                                    PasswordForm, DisplaynameForm, CurrentColoursForm
+from .forms                         import UpdateMemberForm, UserOptionsForm, InsertMemberForm, InsertContactForm, \
+                                    PasswordForm, DisplaynameForm
 from mysite.settings                import IS_CLUB
 
     #status == 05      is a contact, not a member, does not have a login and can only be added to an event by a member
@@ -24,13 +24,14 @@ def member_list(request):
     activeuser                              =  User.objects.get(id=request.user.id)
     activeperson                            =  Person.objects.get(username=activeuser.username)
     persons                             =  Person.objects.all().order_by('display_name')
-    return render(request, 'users/member_list.html', {'persons': persons, 'activeperson': activeperson})
+    return render(request, 'users/member_list.html', {'persons': persons, 'activeperson': activeperson, 'IS_CLUB': IS_CLUB})
 
+'''
 @login_required
 def contact_list(request):
-    persons                             =  Person.objects.all().order_by('display_name')
-    return render(request, 'users/contact_list.html', {'persons': persons})
-
+    persons                             =  Person.objects.filter(status=5).order_by('display_name')
+    return render(request, 'users/contact_list.html', {'persons': persons, 'activeperson': activeperson, 'IS_CLUB': IS_CLUB})
+'''
 
 # functions which do not update the database
 # but do require a pk as they refer to an existing record
@@ -48,12 +49,14 @@ def member_detail(request, pk):
     can_remove                          =  True
   else:
     can_remove                          =  False
-  return render(request, 'users/member_detail.html', {'person': person,'can_update':can_update,'can_remove':can_remove})
+  return render(request, 'users/member_detail.html', {'person': person, 'activeperson': activeperson, 'can_update':can_update,'can_remove':can_remove})
 
+'''
 def contact_detail(request, pk):
   person                                =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
   #user                                  =  User.objects.get(username=person.username)
   return render(request, 'users/contact_detail.html', {'person': person})
+'''
 
 # functions which update the database using parameters in the url, without using forms
 # but do not require a pk as they refer to activeuser
@@ -81,13 +84,17 @@ def member_delete(request, pk, confirmed):
     activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
     activeperson               =  Person.objects.get(username=activeuser.username)
     person                     =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
-    user                       =  User.objects.get(username=person.username)
     if activeperson.status     >= 60                              \
     or person.authorname       == activeperson.username:
-      user.delete()
       person.delete()
-      return redirect('users.views.member_list')
+      try:
+        user                       =  User.objects.get(username=person.username)
+        user.delete()
+      except:
+        pass
+    return redirect('users.views.member_list')
 
+'''
 @login_required
 def contact_delete(request, pk, confirmed):
   if confirmed                 == 'no':
@@ -96,7 +103,7 @@ def contact_delete(request, pk, confirmed):
     person                     =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
     person.delete()
     return redirect('users.views.contact_list')
-
+'''
 
 @login_required
 def promote(request, pk):
@@ -173,11 +180,9 @@ def contact_insert(request):
     form                                = InsertContactForm(request.POST)                     # get a InsertPersonForm filled with details of new user
     if form.is_valid():
       person                                = form.save(commit=False)                 # extract details from user for
+      person.username                       = 'nologin'
       person.fullmember                     = False
       person.status                         =  5
-      person.detailcolor                    = '#0000C0'
-      person.attendeescolor                 = '#00C000'
-      person.backgroundcolor                = '#F3FFF3'
       person.save()                                                                   # update user record with extra details
       form.save_m2m()
       return redirect('users.views.contact_list')
@@ -309,6 +314,7 @@ def member_amend(request, pk):
     else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
       return render(request, 'users/member_amended.html', {'form': form})
 
+'''
 @login_required
 def contact_amend(request, pk):
   #activeuser                            =  User.objects.get(id=request.user.id)    # get details of activeuser
@@ -328,6 +334,6 @@ def contact_amend(request, pk):
       return redirect('users.views.contact_list')
     else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
       return render(request, 'users/contact_amended.html', {'form': form})
-
+'''
 
 

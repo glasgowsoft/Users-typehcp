@@ -10,9 +10,55 @@
     <a class="btn btn-default" href="{% url 'homepage' %}">View Events</a>
     </h2>
 
-    {% if can_update %}
+    <h2 class="date">
+    <span class="item">{{ person.display_name  }},</span>
+    {% if person.fullmember %}
+      <span class="item">Full Member</span>
+    {% else %}
+      <span class="item">Prospective Member</span>
+    {% endif %}
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Username:&nbsp;&nbsp;<span class="item">{{ person.username  }}</span>
+    {% if person.authorname %}
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added by:&nbsp;&nbsp;<span class="item">{{ person.authorname  }}</span>
+    {% endif %}
+    </h2>
+
+    <h2 class="date">Authorisations</h2>
+    {% if person.status = 20 %}
+      <h3> Can see event details and book into events</h3>
+    {% elif person.status = 30 %}
+      <h3> Can see event details and book into events</h3>
+      <h3> Can post events and update/delete their own events</h3>
+    {% elif person.status = 35 %}
+      <h3> Can see event details and book into events</h3>
+      <h3> Can post events and update/delete their own events</h3>
+      <h3> Can add a prospective member and remove them</h3>
+    {% elif person.status = 40 %}
+      <h3> Can see event details and book into events</h3>
+      <h3> Can post events and update/delete any event, not only their own</h3>
+      <h3> Can add a prospective member and remove them</h3>
+      <h3> Can view member details</h3>
+    {% elif person.status = 50 %}
+      <h3> Can see event details and book into events</h3>
+      <h3> Can post events and update/delete any event, not only their own</h3>
+      <h3> Can add a prospective member and remove them</h3>
+      <h3> Can view member details</h3>
+      <h3> Can change a member from Prospective to Full and vice versa</h3>
+    {% elif person.status = 60 %}
+      <h3> Can see event details and book into events</h3>
+      <h3> Can post events and update/delete any event, not only their own</h3>
+      <h3> Can add a prospective member and remove them</h3>
+      <h3> Can view member details</h3>
+      <h3> Can change a member's authorisations</h3>
+      <h3> Can remove a member, following a committee decision</h3>
+    {% endif %}
+
+    {% if activeperson.status >= 60 %}
       <a class="btn btn-default" href="{% url 'memberupdate' pk=person.pk %}">
       <span>Update this member</span></a>
+    {% endif %}
+
+    {% if activeperson.status >= 50 %}
       {% if person.fullmember %}
         <td><a class="btn btn-default" href="{% url 'demote' pk=person.pk %}">
         <span>Change to Prospective Member</span></a></td>
@@ -21,17 +67,11 @@
         <span>Change to Full Member</span></a></td>
       {% endif %}
     {% endif %}
-    {% if can_remove %}
+
+    {% if activeperson.status >= 60  or person.authorname = activeperson.username %}
       <a class="btn btn-default" href="{% url 'memberdelete' pk=person.pk confirmed='no' %}">
       <span>Remove this member</span></a>
     {% endif %}
-  <table>
-  <h2>
-    <tr><td>&nbsp;&nbsp;{{ person.username }}&nbsp;</td>
-        <td>{{ person.first_name }}&nbsp;</td>
-        <td>{{ person.status }}&nbsp;</td>
-        <td>{{ person.authorname }}&nbsp;</td>
-  </h2>
-  </table>
+
   </div>
 {% endblock %}

@@ -2,12 +2,11 @@
 
 {% block content %}
     <h1>New Contact</h1>
-    {% if error_message %}
-      <h2 class="error">{{error_message}}</h2>
-    {% endif %}
+
     <form method="POST" class="post-form">{% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="save btn btn-default">Add this new contact to the website</button>
     </form>
+
     <a class="btn btn-default" href="{% url 'events.views.event_list' %}">View Events</a>
 {% endblock %}

@@ -10,17 +10,13 @@
     <a class="btn btn-default" href="{% url 'homepage' %}">View Events</a>
     </h2>
 
-    {% if can_update %}
-      <a class="btn btn-default" href="{% url 'contactupdate' pk=person.pk %}">
-      <span>Update this member</span></a>
-    {% endif %}
     {% if can_remove %}
       <a class="btn btn-default" href="{% url 'contactdelete' pk=person.pk confirmed='no' %}">
       <span>Remove this member</span></a>
     {% endif %}
   <table>
   <h2>
-    <tr><td>&nbsp;&nbsp;{{ person.username }}&nbsp;</td>
+    <tr>
         <td>{{ person.first_name }}&nbsp;</td>
         <td>{{ person.status }}&nbsp;</td>
         <td>{{ person.authorname }}&nbsp;</td>

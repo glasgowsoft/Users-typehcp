@@ -24,7 +24,7 @@ class InsertMemberForm(forms.ModelForm):
 class InsertContactForm(forms.ModelForm):
     class Meta:
         model = Person
-        fields = ('username', 'display_name')
+        fields = ('display_name',)
 
 class PasswordForm(forms.Form):
     password = forms.CharField(label='New password', max_length=20)

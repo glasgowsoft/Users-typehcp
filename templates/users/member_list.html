@@ -2,24 +2,28 @@
 
 {% block content %}
       {% if activeperson.status >= 35 %}
+        {% if IS_CLUB %}
           <a class="btn btn-default" href="{% url 'memberinsert' %}" >Add a member</span></a>
+        {% else %}
+          <a class="btn btn-default" href="{% url 'memberinsert' %}" >Add a login id</span></a>
+        {% endif %}
       {% endif %}
       <a class="btn btn-default" href="{% url 'events.views.event_list' %}">
       View Events</a>
       <a class="btn btn-default" href="{% url 'useroptions' type='get' color='get' whence='users' %}">
-      <span>Options</span></a>
-      <h2 class ='item'>Members</h2>
+      <span>Settings</span></a>
+      {% if IS_CLUB %}
+        <h2 class ='item'>Members</h2>
+      {% else %}
+        <h2 class ='item'>Persons who have a logon id</h2>
+      {% endif %}
 
       <table>
       {% for x in persons %}
+      {% if x.status >= 10 %}
         {% if x.status >= 20 or activeperson.status >= 60 %}
           <tr>
-          {% if activeperson.status >= 60 %}
-              <tr><td>&nbsp;&nbsp;<a class="item" href="{% url 'memberdetail' pk=x.pk %}">{{ x.username }}&nbsp;</a></td>
-          {% elif activeperson.status >= 40 %}
-              <tr><td>&nbsp;&nbsp;{{ x.username }}&nbsp;</td>
-          {% endif %}
-          <td>{{ x.display_name }}&nbsp;</td>
+          <td>&nbsp;&nbsp;<a class="item" href="{% url 'memberdetail' pk=x.pk %}">{{ x.display_name }}&nbsp;</a></td>
           {% if activeperson.status >= 40 %}
               <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
           {% endif %}
@@ -47,7 +51,36 @@
           {% endif %}
           </tr>
         {% endif %}
+      {% endif %}
       {% endfor %}
+      </table>
+
+
+ {% if activeperson.status >= 60 %}
+      <h2 class ='item'>Contacts</h2>
+
+      <table>
+
+      {% for x in persons %}
+        {% if x.status < 10 %}
+
+          <tr>
+          <td>&nbsp;&nbsp;<a class="item" href="{% url 'memberdetail' pk=x.pk %}">{{ x.display_name }}&nbsp;</a></td>
+
+          {% if activeperson.status >= 40 %}
+              <td>{{ x.authorname }}&nbsp;</td>
+          {% endif %}
+
+          {% if activeperson.username = x.authorname %}
+             <td><a class="btn btn-default" href="{% url 'contactdelete' pk=x.pk confirmed='no' %}">
+             <span>Remove</span></a></td>
+          {% endif %}
+          </tr>
+
+        {% endif %}
+      {% endfor %}
+  {% endif %}
+
       </h2>
       </table>
 {% endblock content %}
