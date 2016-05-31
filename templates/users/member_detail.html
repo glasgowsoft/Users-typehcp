@@ -10,56 +10,61 @@
     <a class="btn btn-default" href="{% url 'homepage' %}">View Events</a>
     </h2>
 
-    <h2 class="date">
-    <span class="item">{{ person.display_name  }},</span>
+    <h2>
+    <span class="attendees">Displayed Name:&nbsp;&nbsp;</span>
+    <span class="detail">{{ person.display_name  }}&nbsp;&nbsp;</span>
+    &nbsp;&nbsp;<span class="attendees">Username:&nbsp;&nbsp;</span>
+    <span class="detail">{{ person.username  }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     {% if person.status = 5 %}
-      <span class="item">Contact</span>
+      <span class="detail">Contact</span>
     {% else %}
       {% if person.fullmember %}
-        <span class="item">Full Member</span>
+        <span class="detail">Full Member</span>
       {% else %}
-        <span class="item">Prospective Member</span>
+        <span class="detail">Prospective Member</span>
       {% endif %}
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Username:&nbsp;&nbsp;<span class="item">{{ person.username  }}</span>
+
     {% endif %}
 
     {% if person.authorname %}
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added by:&nbsp;&nbsp;<span class="item">{{ person.authorname  }}</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="attendees">Added by:&nbsp;&nbsp;</span><span class="detail">{{ person.authorname  }}</span>
     {% endif %}
     </h2>
-
+    <br><br>
     {% if person.status >= 20 %}
-      <h2 class="date">Authorisations</h2>
+      <h2><span class="attendees">Authorisations</span></h2>
     {% endif %}
 
     {% if person.status = 20 %}
-      <h3> Can see event details and book into events</h3>
+      <h2> <span class='detail' > Can see event details and book into events</span></h2>
     {% elif person.status = 30 %}
-      <h3> Can see event details and book into events</h3>
-      <h3> Can post events and update/delete their own events</h3>
+      <h2> <span class='detail' > Can see event details and book into events</span></h2>
+      <h2> <span class='detail' > Can post events and update/delete their own events</span></h2>
     {% elif person.status = 35 %}
-      <h3> Can see event details and book into events</h3>
-      <h3> Can post events and update/delete their own events</h3>
-      <h3> Can add a prospective member and remove them</h3>
+      <h2> <span class='detail' > Can see event details and book into events</span></h2>
+      <h2> <span class='detail' > Can post events and update/delete their own events</span></h2>
+      <h2> <span class='detail' > Can add a prospective member and remove them</span></h2>
     {% elif person.status = 40 %}
-      <h3> Can see event details and book into events</h3>
-      <h3> Can post events and update/delete any event, not only their own</h3>
-      <h3> Can add a prospective member and remove them</h3>
-      <h3> Can view member details</h3>
+      <h2> <span class='detail' > Can see event details and book into events</span></h2>
+      <h2> <span class='detail' > Can post events and update/delete any event, not only their own</span></h2>
+      <h2> <span class='detail' > Can add a prospective member and remove them</span></h2>
+      <h2> <span class='detail' > Can view member details</span></h2>
     {% elif person.status = 50 %}
-      <h3> Can see event details and book into events</h3>
-      <h3> Can post events and update/delete any event, not only their own</h3>
-      <h3> Can add a prospective member and remove them</h3>
-      <h3> Can view member details</h3>
-      <h3> Can change a member from Prospective to Full and vice versa</h3>
+      <h2> <span class='detail' > Can see event details and book into events</span></h2>
+      <h2> <span class='detail' > Can post events and update/delete any event, not only their own</span></h2>
+      <h2> <span class='detail' > Can add a prospective member and remove them</span></h2>
+      <h2> <span class='detail' > Can view member details</span></h2>
+      <h2> <span class='detail' > Can change a member from Prospective to Full and vice versa</span></h2>
     {% elif person.status = 60 %}
-      <h3> Can see event details and book into events</h3>
-      <h3> Can post events and update/delete any event, not only their own</h3>
-      <h3> Can add a prospective member and remove them</h3>
-      <h3> Can view member details</h3>
-      <h3> Can change a member's authorisations</h3>
-      <h3> Can remove a member, following a committee decision</h3>
+      <h2> <span class='detail' > Can see event details and book into events</span></h2>
+      <h2> <span class='detail' > Can post events and update/delete any event, not only their own</span></h2>
+      <h2> <span class='detail' > Can add a prospective member and remove them</span></h2>
+      <h2> <span class='detail' > Can view member details</span></h2>
+      <h2> <span class='detail' > Can change a member's authorisations</span></h2>
+      <h2> <span class='detail' > Can remove a member, following a committee decision</span></h2>
     {% endif %}
+
+    <br><br>
 
     {% if activeperson.status >= 60 and person.status >= 20 %}
       <a class="btn btn-default" href="{% url 'memberupdate' pk=person.pk %}">
