@@ -25,11 +25,12 @@
           <tr>
           <td>&nbsp;&nbsp;<a class="item" href="{% url 'memberdetail' pk=x.pk %}">{{ x.display_name }}&nbsp;</a></td>
           {% if activeperson.status >= 40 %}
-              <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
-          {% endif %}
-          {% if activeperson.status >= 40 %}
               <td>{{ x.authorname }}&nbsp;</td>
           {% endif %}
+          {% if activeperson.status >= 40 %}
+              <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
+          {% endif %}
+
           {% if activeperson.status >= 60 %}
             {% if x.status = 20 %}
               <td><span style='color: #0000C0;'>member</span>&nbsp;</td>
@@ -66,13 +67,12 @@
 
           <tr>
           <td>&nbsp;&nbsp;<a class="item" href="{% url 'memberdetail' pk=x.pk %}">{{ x.display_name }}&nbsp;</a></td>
-
           {% if activeperson.status >= 40 %}
               <td>{{ x.authorname }}&nbsp;</td>
           {% endif %}
 
           {% if activeperson.username = x.authorname %}
-             <td><a class="btn btn-default" href="{% url 'contactdelete' pk=x.pk confirmed='no' %}">
+             <td><a class="btn btn-default" href="{% url 'memberdelete' pk=x.pk confirmed='no' %}">
              <span>Remove</span></a></td>
           {% endif %}
           </tr>

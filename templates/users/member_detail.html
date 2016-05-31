@@ -12,18 +12,26 @@
 
     <h2 class="date">
     <span class="item">{{ person.display_name  }},</span>
-    {% if person.fullmember %}
-      <span class="item">Full Member</span>
+    {% if person.status = 5 %}
+      <span class="item">Contact</span>
     {% else %}
-      <span class="item">Prospective Member</span>
+      {% if person.fullmember %}
+        <span class="item">Full Member</span>
+      {% else %}
+        <span class="item">Prospective Member</span>
+      {% endif %}
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Username:&nbsp;&nbsp;<span class="item">{{ person.username  }}</span>
     {% endif %}
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Username:&nbsp;&nbsp;<span class="item">{{ person.username  }}</span>
+
     {% if person.authorname %}
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added by:&nbsp;&nbsp;<span class="item">{{ person.authorname  }}</span>
     {% endif %}
     </h2>
 
-    <h2 class="date">Authorisations</h2>
+    {% if person.status >= 20 %}
+      <h2 class="date">Authorisations</h2>
+    {% endif %}
+
     {% if person.status = 20 %}
       <h3> Can see event details and book into events</h3>
     {% elif person.status = 30 %}
@@ -53,24 +61,24 @@
       <h3> Can remove a member, following a committee decision</h3>
     {% endif %}
 
-    {% if activeperson.status >= 60 %}
+    {% if activeperson.status >= 60 and person.status >= 20 %}
       <a class="btn btn-default" href="{% url 'memberupdate' pk=person.pk %}">
       <span>Update this member</span></a>
     {% endif %}
 
-    {% if activeperson.status >= 50 %}
-      {% if person.fullmember %}
-        <td><a class="btn btn-default" href="{% url 'demote' pk=person.pk %}">
-        <span>Change to Prospective Member</span></a></td>
-      {% else %}
-        <td><a class="btn btn-default" href="{% url 'promote' pk=person.pk %}">
-        <span>Change to Full Member</span></a></td>
-      {% endif %}
+    {% if activeperson.status >= 50 and person.status >= 20  %}
+        {% if person.fullmember %}
+          <td><a class="btn btn-default" href="{% url 'demote' pk=person.pk %}">
+          <span>Change to Prospective Member</span></a></td>
+        {% else %}
+          <td><a class="btn btn-default" href="{% url 'promote' pk=person.pk %}">
+          <span>Change to Full Member</span></a></td>
+        {% endif %}
     {% endif %}
 
     {% if activeperson.status >= 60  or person.authorname = activeperson.username %}
       <a class="btn btn-default" href="{% url 'memberdelete' pk=person.pk confirmed='no' %}">
-      <span>Remove this member</span></a>
+      <span>Remove this member/contact</span></a>
     {% endif %}
 
   </div>

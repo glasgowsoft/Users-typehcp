@@ -18,7 +18,6 @@ from mysite.settings                import IS_CLUB
     #status == 60      also can remove members and make any update
 
 # functions which do not update the database
-# and don't require a pk as they don't refer to an specific record
 @login_required
 def member_list(request):
     activeuser                              =  User.objects.get(id=request.user.id)
@@ -26,37 +25,11 @@ def member_list(request):
     persons                             =  Person.objects.all().order_by('display_name')
     return render(request, 'users/member_list.html', {'persons': persons, 'activeperson': activeperson, 'IS_CLUB': IS_CLUB})
 
-'''
-@login_required
-def contact_list(request):
-    persons                             =  Person.objects.filter(status=5).order_by('display_name')
-    return render(request, 'users/contact_list.html', {'persons': persons, 'activeperson': activeperson, 'IS_CLUB': IS_CLUB})
-'''
-
-# functions which do not update the database
-# but do require a pk as they refer to an existing record
 def member_detail(request, pk):
   activeuser                            =  User.objects.get(id=request.user.id)
   activeperson                          =  Person.objects.get(username=activeuser.username)
   person                                =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
-  #user                                  =  User.objects.get(username=person.username)
-  if activeperson.status                >= 60:
-    can_update                          =  True
-  else:
-    can_update                          =  False
-  if activeperson.status                >= 60 \
-  or person.authorname                  == activeperson.username:
-    can_remove                          =  True
-  else:
-    can_remove                          =  False
-  return render(request, 'users/member_detail.html', {'person': person, 'activeperson': activeperson, 'can_update':can_update,'can_remove':can_remove})
-
-'''
-def contact_detail(request, pk):
-  person                                =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
-  #user                                  =  User.objects.get(username=person.username)
-  return render(request, 'users/contact_detail.html', {'person': person})
-'''
+  return render(request, 'users/member_detail.html', {'person': person, 'activeperson': activeperson})
 
 # functions which update the database using parameters in the url, without using forms
 # but do not require a pk as they refer to activeuser
@@ -70,7 +43,6 @@ def unsubscribe(request, confirmed):
     activeuser.delete()
     activeperson.delete()
     unsubscribed               =  True
-    #return redirect('django.contrib.auth.views.logout')
     return render(request, 'users/unsubscribe_confirmed.html', {'unsubscribed': unsubscribed})
     #return redirect('django.contrib.auth.views.logout')
 
@@ -88,22 +60,12 @@ def member_delete(request, pk, confirmed):
     or person.authorname       == activeperson.username:
       person.delete()
       try:
-        user                       =  User.objects.get(username=person.username)
-        user.delete()
+        User.objects.get(username=person.username).delete()
+        #user                       =  User.objects.get(username=person.username)
+        #user.delete()
       except:
         pass
     return redirect('users.views.member_list')
-
-'''
-@login_required
-def contact_delete(request, pk, confirmed):
-  if confirmed                 == 'no':
-    return render(request, 'users/contact_delete.html', {'pk': pk})
-  else:
-    person                     =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
-    person.delete()
-    return redirect('users.views.contact_list')
-'''
 
 @login_required
 def promote(request, pk):
@@ -162,30 +124,33 @@ def member_insert(request):
       person.backgroundcolor                = '#F3FFF3'
       person.authorname                     = activeperson.username
       user = User.objects.create_user(person.username, 'a@a.com', person.password)  # create user record from form
-      user.first_name                       = person.display_name
+      #user.first_name                       = person.display_name
       user.save()
-      person.save()                                                                   # update user record with extra details
+      person.password                       = ''
+      person.save()
       form.save_m2m()
       return redirect('users.views.member_list')
-    else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
+    else:
       return render(request, 'users/insert_update.html', {'form': form})
 
 @login_required
 def contact_insert(request):
-
-  if request.method                     != "POST": # i.e. method == "GET":
+  activeuser                                =  User.objects.get(id=request.user.id)    # get details of activeuser
+  activeperson                              =  Person.objects.get(username=activeuser.username)
+  if request.method                         != "POST": # i.e. method == "GET":
     form = InsertContactForm()                                               # get a blank InsertPersonForm
     return render(request, 'users/contact_new.html', {'form': form})
-  else:                                 # i.e method == 'POST'
-    form                                = InsertContactForm(request.POST)                     # get a InsertPersonForm filled with details of new user
+  else:                                     # i.e method == 'POST'
+    form                                    = InsertContactForm(request.POST)                     # get a InsertPersonForm filled with details of new user
     if form.is_valid():
       person                                = form.save(commit=False)                 # extract details from user for
-      person.username                       = 'nologin'
+      #person.username                       = ''
       person.fullmember                     = False
       person.status                         =  5
+      person.authorname                     = activeperson.username
       person.save()                                                                   # update user record with extra details
       form.save_m2m()
-      return redirect('users.views.contact_list')
+      return redirect('users.views.member_list')
     else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
       return render(request, 'users/contact_new.html', {'form': form})
 
