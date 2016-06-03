@@ -20,10 +20,10 @@ from mysite.settings                import IS_CLUB
 # functions which do not update the database
 @login_required
 def member_list(request):
-    activeuser                              =  User.objects.get(id=request.user.id)
-    activeperson                            =  Person.objects.get(username=activeuser.username)
-    persons                             =  Person.objects.all().order_by('display_name')
-    return render(request, 'users/member_list.html', {'persons': persons, 'activeperson': activeperson, 'IS_CLUB': IS_CLUB})
+  activeuser                              =  User.objects.get(id=request.user.id)
+  activeperson                            =  Person.objects.get(username=activeuser.username)
+  persons                             =  Person.objects.all().order_by('display_name')
+  return render(request, 'users/member_list.html', {'persons': persons, 'activeperson': activeperson, 'IS_CLUB': IS_CLUB})
 
 def member_detail(request, pk):
   activeuser                            =  User.objects.get(id=request.user.id)

@@ -17,7 +17,8 @@
     </form>
     {% endcomment %}
 
-    <h2>
+
+
     {% if activeperson.reversevideo = True %}
     <h2>
     <span class='label'>Change Date Colour </span>
@@ -57,6 +58,7 @@
     <a class="btn btn-default" href="{% url 'useroptions' type='detail' color='#F000F0' whence=whence %}">
     <span>Purple</span></a>
     </h2>
+
     <h2>
     <span class='label'>Change Attendees Colour</span>
     <a class="btn btn-default" href="{% url 'useroptions' type='attendees' color='white' whence=whence %}">
@@ -75,8 +77,8 @@
     <span>Faint Blue</span></a>
     <a class="btn btn-default" href="{% url 'useroptions' type='attendees' color='#F000F0' whence=whence %}">
     <span>Purple</span></a>
-
     </h2>
+
     <h2>
     <span class='label'>Change Background Colour</span>
     <a class="btn btn-default" href="{% url 'useroptions' type='background' color='black' whence=whence %}">
@@ -92,6 +94,7 @@
     <a class="btn btn-default" href="{% url 'useroptions' type='background' color='#600060' whence=whence %}">
     <span>Dark Purple</span></a>
     </h2>
+
       <a class="btn btn-default" href="{% url 'useroptions' whence=whence type='forward' color='#F3F3FF' %}">
       <span>Change to Normal Video, i.e. dark writing on light background</span></a>
 
@@ -170,11 +173,14 @@
     <span>Light Blue</span></a>
     <a class="btn btn-default" href="{% url 'useroptions' type='background' color='#F3F3FF' whence=whence %}">
     <span>Faint Blue</span></a>
-    </h2>
+   </h2>
+    <h2>
       <a class="btn btn-default" href="{% url 'useroptions' whence=whence type='reverse' color='#F3F3FF' %}">
       <span>Change to Reverse Video, i.e. light writing on dark background</span></a>
     {% endif %}
-    </h2>
+
+   </h2>
+   <br>
     <h2>
     {% if whence = 'events' %}
     <a class="btn btn-default" href="{% url 'events.views.event_list' %}">
@@ -183,7 +189,7 @@
     <a class="btn btn-default" href="{% url 'users.views.member_list' %}">
     <span>Return to viewing members</span></a>
     {% else %}
-    <h2> {{whence}} zz</h2>
+     {{whence}}
     {% endif %}
-    </h2>
+
 {% endblock %}

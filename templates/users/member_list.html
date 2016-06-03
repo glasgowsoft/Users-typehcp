@@ -20,7 +20,7 @@
 
       <table>
       {% for x in persons %}
-      {% if x.status >= 10 %}
+      {% if x.status >= 8 %}
         {% if x.status >= 20 or activeperson.status >= 60 %}
           <tr>
           <td>&nbsp;&nbsp;<a class="item" href="{% url 'memberdetail' pk=x.pk %}">{{ x.display_name }}&nbsp;</a></td>
@@ -33,9 +33,9 @@
 
           {% if activeperson.status >= 60 %}
             {% if x.status = 20 %}
-              <td><span style='color: #0000C0;'>member</span>&nbsp;</td>
+              <td><span style='color: #00C0C0;'>member</span>&nbsp;</td>
             {% elif x.status = 30 %}
-              <td><span style='color: #00C0C0;'>planner</span>&nbsp;</td>
+              <td><span style='color: #00C080;'>planner</span>&nbsp;</td>
             {% elif x.status = 35 %}
               <td><span style='color: #00C000;'>recruiter</span>&nbsp;</span></td>
              {% elif x.status = 40 %}
@@ -44,6 +44,12 @@
               <td><span style='color: #C08000;'>treasurer</span>&nbsp;</td>
              {% elif x.status = 60 %}
               <td><span style='color: #C00000;'>admin</span>&nbsp;</td>
+             {% elif x.status = 10 %}
+              <td><span style='color: #0080C0;'>onlytitles</span>&nbsp;</td>
+             {% elif x.status = 15 %}
+              <td><span style='color: #0000C0;'>viewer</span>&nbsp;</td>
+             {% elif x.status = 8 %}
+              <td><span style='color: #0080C0;'>noevents</span>&nbsp;</td>
             {% endif %}
           {% endif %}
           {% if activeperson.username = x.authorname %}
@@ -63,7 +69,7 @@
       <table>
 
       {% for x in persons %}
-        {% if x.status < 10 %}
+        {% if x.status = 5 %}
 
           <tr>
           <td>&nbsp;&nbsp;<a class="item" href="{% url 'memberdetail' pk=x.pk %}">{{ x.display_name }}&nbsp;</a></td>
