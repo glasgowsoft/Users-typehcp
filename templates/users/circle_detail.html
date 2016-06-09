@@ -1,0 +1,24 @@
+{% extends "mysite/base.html" %}
+{% block content %}
+{% if error_message %}
+  <h1> {{error_message}}</h1>
+{% endif %}
+
+  <div class="person">
+    <h2>
+    <a class="btn btn-default" href="{% url 'circlelist' %}" ><span>View users</span></a>
+    <a class="btn btn-default" href="{% url 'homepage' %}">View Events</a>
+    </h2>
+
+    {% if can_remove %}
+      <a class="btn btn-default" href="{% url 'circledelete' pk=person.pk confirmed='no' %}">
+      <span>Remove this circle</span></a>
+    {% endif %}
+  <table>
+  <h2>
+    <tr>
+        <td>{{ circle.full_name }}&nbsp;</td>
+  </h2>
+  </table>
+  </div>
+{% endblock %}

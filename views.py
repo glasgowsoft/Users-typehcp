@@ -2,8 +2,8 @@ from django.shortcuts               import render, get_object_or_404, redirect
 #from django.utils                   import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models     import User
-from .models                        import Person
-from .forms                         import UpdateMemberForm, UserOptionsForm, InsertMemberForm, InsertContactForm, \
+from .models                        import Person, Circle
+from .forms                         import UpdateMemberForm, UpdateCircleForm, UserOptionsForm, InsertMemberForm, InsertContactForm, InsertCircleForm,\
                                     PasswordForm, DisplaynameForm
 from mysite.settings                import IS_CLUB
 
@@ -25,11 +25,30 @@ def member_list(request):
   persons                             =  Person.objects.all().order_by('display_name')
   return render(request, 'users/member_list.html', {'persons': persons, 'activeperson': activeperson, 'IS_CLUB': IS_CLUB})
 
+@login_required
 def member_detail(request, pk):
   activeuser                            =  User.objects.get(id=request.user.id)
   activeperson                          =  Person.objects.get(username=activeuser.username)
   person                                =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
-  return render(request, 'users/member_detail.html', {'person': person, 'activeperson': activeperson})
+  circles_list = []
+  for circle in person.circles.all():
+    circles_list.append(circle.full_name)
+  circles_string   = ', '.join(circles_list)
+  return render(request, 'users/member_detail.html', {'person': person, 'activeperson': activeperson, 'circles':circles_string})
+
+@login_required
+def circle_list(request):
+  circles = Circle.objects.all().order_by('full_name')
+  return render(request, 'users/circle_list.html', {'circles': circles})
+
+@login_required
+def circle_detail(request, pk):
+  circle                                    = get_object_or_404(Circle, pk=pk)
+  contacts_list = []
+  for contact in circle.person_set.all():
+    contacts_list.append(contact.display_name)
+  contacts_string   = ', '.join(contacts_list)
+  return render(request, 'users/circle_detail.html', {'circle': circle, 'contacts':contacts_string})
 
 # functions which update the database using parameters in the url, without using forms
 # but do not require a pk as they refer to activeuser
@@ -66,6 +85,19 @@ def member_delete(request, pk, confirmed):
       except:
         pass
     return redirect('users.views.member_list')
+
+@login_required
+def circle_delete(request, pk, confirmed):
+  if confirmed                 == 'no':
+    return render(request, 'users/circle_delete.html', {'pk': pk})
+  else:
+    activeuser                 =  User.objects.get(id=request.user.id)    # get details of activeuser
+    activeperson               =  Person.objects.get(username=activeuser.username)
+    if activeperson.status     >= 60:
+      circle                     =  get_object_or_404(Circle, pk=pk)     # get details of person to be updated/displayed/deleted
+      if activeperson.status     >= 60:                           \
+        circle.delete()
+    return redirect('users.views.circle_list')
 
 @login_required
 def promote(request, pk):
@@ -131,6 +163,31 @@ def member_insert(request):
       form.save_m2m()
       return redirect('users.views.member_list')
     else:
+      return render(request, 'users/member_new.html', {'form': form})
+
+@login_required
+def circle_insert(request):
+  activeuser                            =  User.objects.get(id=request.user.id)    # get details of activeuser
+  activeperson                          =  Person.objects.get(username=activeuser.username)
+  if activeperson.status                >= 60:
+    can_insert                          = True
+  else:
+    can_insert                          = False
+  if request.method                     != "POST": # i.e. method == "GET":
+    if can_insert:
+      form = InsertCircleForm()                                               # get a blank InsertPersonForm
+      return render(request, 'users/circle_new.html', {'form': form})
+    else:
+      return redirect('events.views.event_list')
+  else:                                 # i.e method == 'POST'
+    form                                = InsertCircleForm(request.POST)                     # get a InsertPersonForm filled with details of new user
+    if form.is_valid()\
+    and can_insert:
+      circle                                = form.save(commit=False)                 # extract details from user for                 = ''
+      circle.save()
+      form.save_m2m()
+      return redirect('users.views.circle_list')
+    else:
       return render(request, 'users/insert_update.html', {'form': form})
 
 @login_required
@@ -144,7 +201,6 @@ def contact_insert(request):
     form                                    = InsertContactForm(request.POST)                     # get a InsertPersonForm filled with details of new user
     if form.is_valid():
       person                                = form.save(commit=False)                 # extract details from user for
-      #person.username                       = ''
       person.fullmember                     = False
       person.status                         =  5
       person.authorname                     = activeperson.username
@@ -278,6 +334,29 @@ def member_amend(request, pk):
       return redirect('users.views.member_list')
     else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
       return render(request, 'users/member_amended.html', {'form': form})
+
+@login_required
+def circle_amend(request, pk):
+  activeuser                            =  User.objects.get(id=request.user.id)    # get details of activeuser
+  activeperson                          =  Person.objects.get(username=activeuser.username)
+  person                                =  get_object_or_404(Person, pk=pk)     # get details of person to be updated/displayed/deleted
+  user                                  =  User.objects.get(username=person.username)
+
+  if request.method                     != "POST": # i.e. method == "GET":
+    form = UpdateCircleForm(instance=person)                                # get a UpdatePersonForm filled with details of Profile to be upd
+    return render(request, 'users/circle_amended.html', {'form': form})                # ask activeuser for details of new/updated user
+  else:                                 # i.e method == 'POST'
+    form                                = UpdateCircleForm(request.POST, instance=person)
+    if form.is_valid()\
+    and activeperson.status             >= 60:
+      person                            = form.save(commit=False)                 # extract details from user form
+      user.first_name                   = person.display_name
+      user.save()
+      person.save()                                                                   # update user record with extra details
+      form.save_m2m()
+      return redirect('users.views.circle_list')
+    else:                                                                        # i.e. form is not valid, ask activeuser to resubmit it
+      return render(request, 'users/circle_amended.html', {'form': form})
 
 '''
 @login_required

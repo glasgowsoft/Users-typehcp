@@ -31,9 +31,12 @@
     {% endif %}
     </h2>
     <br><br>
-    {% if person.status >= 20 %}
-      <h2><span class="attendees">Authorisations</span></h2>
+
+    {% if circles %}
+      <h2><span class="attendees">Circles</h2><h2><span class="detail">{{ circles }}</span></h2>
     {% endif %}
+
+    <h2><span class="attendees">Authorisations</span></h2>
 
     {% if person.status = 20 %}
       <h2> <span class='detail' > Can see event details and book into events</span></h2>
@@ -63,9 +66,13 @@
       <h2> <span class='detail' > Can change a member's authorisations</span></h2>
       <h2> <span class='detail' > Can remove a member, following a committee decision</span></h2>
     {% elif person.status = 10 %}
-      <h2> <span class='detail' > Can only see event titles and dates</span></h2>
+      <h2> <span class='detail' > Can only see club description, event titles and dates</span></h2>
+    {% elif person.status = 8 %}
+      <h2> <span class='detail' > Can only see club description</span></h2>
     {% elif person.status = 15 %}
       <h2> <span class='detail' > Can see event details, but not book in</span></h2>
+    {% elif person.status = 5 %}
+      <h2> <span class='detail' > None</span></h2>
     {% endif %}
 
     <br><br>
