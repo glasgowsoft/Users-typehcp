@@ -10,8 +10,10 @@
       {% endif %}
       <a class="btn btn-default" href="{% url 'events.views.event_list' %}">
       View Events</a>
+      {% if activeperson.status >= 20 %}
       <a class="btn btn-default" href="{% url 'useroptions' type='get' color='get' whence='users' %}">
       <span>Settings</span></a>
+      {% endif %}
       {% if IS_CLUB %}
         <h2 class ='item'>Members</h2>
       {% else %}
@@ -22,9 +24,12 @@
       {% for x in persons %}
       {% if x.status >= 20 %}
           <tr>
-          <td>&nbsp;&nbsp;<a class="item" href="{% url 'memberdetail' pk=x.pk %}">{{ x.display_name }}&nbsp;</a></td>
+
           {% if activeperson.status >= 40 %}
+              <td>&nbsp;&nbsp;<a class="item" href="{% url 'memberdetail' pk=x.pk %}">{{ x.display_name }}&nbsp;</a></td>
               <td>{{ x.authorname }}&nbsp;</td>
+          {% else %}
+              <td>&nbsp;&nbsp;{{ x.display_name }}&nbsp;</td>
           {% endif %}
           {% if activeperson.status >= 40 %}
               <td>{{ x.last_login|date:"jS F Y" }}&nbsp;</td>
@@ -75,11 +80,13 @@
 
           {% if activeperson.status >= 60 %}
              {% if x.status = 10 %}
-              <td><span style='color: #0080C0;'>onlytitles</span>&nbsp;</td>
+              <td><span style='color: #00C000;'>viewtitles</span>&nbsp;</td>
              {% elif x.status = 15 %}
-              <td><span style='color: #0000C0;'>viewer</span>&nbsp;</td>
+              <td><span style='color: #C0C000;'>viewdetails</span>&nbsp;</td>
              {% elif x.status = 8 %}
-              <td><span style='color: #0000C0;'>noevents</span>&nbsp;</td>
+              <td><span style='color: #00C0C0;'>viewnothing</span>&nbsp;</td>
+             {% elif x.status = 18 %}
+              <td><span style='color: #C00000;'>viewmembers</span>&nbsp;</td>
              {% elif x.status = 5 %}
               <td><span style='color: #0080C0;'>contact</span>&nbsp;</td>
             {% endif %}

@@ -32,9 +32,33 @@
     </h2>
     <br><br>
 
+
+
     {% if circles %}
-      <h2><span class="attendees">Circles</h2><h2><span class="detail">{{ circles }}</span></h2>
+      <h2><span class="attendees">Circles</h2>
+      <h2>
+      <span class="detail">{{ circles }}</span>
+      </h2>
     {% endif %}
+
+
+
+    {% comment %}
+    {% if circles %}
+      <h2><span class="attendees">Circles</h2>
+      <h2>
+      {% for circle in circles %}
+        <span class="detail">{{ circle.full_name }}</span>
+      {% endfor %}
+      </h2>
+    {% endif %}
+
+    {% endcomment %}
+
+
+
+
+
 
     <h2><span class="attendees">Authorisations</span></h2>
 
@@ -66,9 +90,11 @@
       <h2> <span class='detail' > Can change a member's authorisations</span></h2>
       <h2> <span class='detail' > Can remove a member, following a committee decision</span></h2>
     {% elif person.status = 10 %}
-      <h2> <span class='detail' > Can only see club description, event titles and dates</span></h2>
+      <h2> <span class='detail' > Can see event title, but not book ins</span></h2>
+    {% elif person.status = 18 %}
+      <h2> <span class='detail' > Can see members, but not book in</span></h2>
     {% elif person.status = 8 %}
-      <h2> <span class='detail' > Can only see club description</span></h2>
+      <h2> <span class='detail' > Cannot even see event titles</span></h2>
     {% elif person.status = 15 %}
       <h2> <span class='detail' > Can see event details, but not book in</span></h2>
     {% elif person.status = 5 %}

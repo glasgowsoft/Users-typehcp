@@ -18,10 +18,13 @@ from mysite.settings                import IS_CLUB
     #status == 60      also can remove members and make any update
 
 # functions which do not update the database
-@login_required
 def member_list(request):
-  activeuser                              =  User.objects.get(id=request.user.id)
-  activeperson                            =  Person.objects.get(username=activeuser.username)
+  if request.user.is_authenticated():
+    activeuser                          = User.objects.get(id=request.user.id)
+    activeperson                        = Person.objects.get(username=activeuser.username)
+  else:
+    activeperson                        = Person.objects.get(username='default')
+    activeuser                          = User.objects.get(username='default')
   persons                             =  Person.objects.all().order_by('display_name')
   return render(request, 'users/member_list.html', {'persons': persons, 'activeperson': activeperson, 'IS_CLUB': IS_CLUB})
 
